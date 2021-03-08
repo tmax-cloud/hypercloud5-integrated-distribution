@@ -68,7 +68,7 @@ void SendMail(){
                 ===
 
                 """,
-             to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;cqa1@tmax.co.kr;chanyong_jeon@tmax.co.kr;byongjohn_han@tmax.co.kr"
+             to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;cqa1@tmax.co.kr;chanyong_jeon@tmax.co.kr;byongjohn_han@tmax.co.kr",
              from: "taegeon_woo@tmax.co.kr"
         )
     }
