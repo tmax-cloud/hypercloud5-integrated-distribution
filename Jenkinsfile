@@ -23,6 +23,7 @@ node {
             DisApiServer()
             break
         case "only-multi-operator":
+            echo "test!!!"
             DisApiServer()
             break
         default:
