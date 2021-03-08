@@ -39,7 +39,7 @@ void SendMail(){
              subject: "Hypercloud5-Integrated-Distribution v${version}",
              body:
                 """
-                안녕하세요. ck2-3팀 우태건입니다.
+                안녕하세요. ck1-3팀 우태건입니다.
                 hypercloud5 통합 정기 배포 안내 메일입니다.
 
                 ===
