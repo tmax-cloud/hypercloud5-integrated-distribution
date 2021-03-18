@@ -39,7 +39,7 @@ void SendMail(){
              subject: "Hypercloud5-Integrated-Distribution v${version}",
              body:
                 """
-                안녕하세요. ck1-3팀 우태건입니다.
+                안녕하세요. ck1-3팀 이승원입니다.
                 hypercloud5 통합 정기 배포 안내 메일입니다.
 
                 ===
@@ -49,27 +49,27 @@ void SendMail(){
 
                 API-server 배포
                 * HyperCloud5 api server
-                * version: v${version}
-                * image: docker.io/tmaxcloudck/hypercloud-api-server:v${version}
+                * version: b${version}
+                * image: docker.io/tmaxcloudck/hypercloud-api-server:b${version}
                 * GitHub : https://github.com/tmax-cloud/hypercloud-api-server
 
                 Single-operator 배포
                 * HyperCloud5 single operator
-                * version: v${version}
-                * image: docker.io/tmaxcloudck/hypercloud-single-operator:v${version}
+                * version: b${version}
+                * image: docker.io/tmaxcloudck/hypercloud-single-operator:b${version}
                 * GitHub : https://github.com/tmax-cloud/hypercloud-single-operator
 
                 Multi-operator 배포
                 * HyperCloud5 multi operator
-                * version: v${version}
-                * image: docker.io/tmaxcloudck/hypercloud-multi-operator:v${version}
+                * version: b${version}
+                * image: docker.io/tmaxcloudck/hypercloud-multi-operator:b${version}
                 * GitHub : https://github.com/tmax-cloud/hypercloud-multi-operator
 
                 ===
 
                 """,
              to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;chanyong_jeon@tmax.co.kr;byongjohn_han@tmax.co.kr",
-             from: "taegeon_woo@tmax.co.kr"
+             from: "seungwon_lee@tmax.co.kr"
         )
     }
 }
