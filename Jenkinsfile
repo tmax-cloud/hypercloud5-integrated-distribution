@@ -52,18 +52,23 @@ void SendMail(){
                 * version: b${version}
                 * image: docker.io/tmaxcloudck/hypercloud-api-server:b${version}
                 * GitHub : https://github.com/tmax-cloud/hypercloud-api-server
+		* ChangeLog : https://github.com/tmax-cloud/hypercloud-api-server/blob/master/CHANGELOG.md
 
                 Single-operator 배포
                 * HyperCloud5 single operator
                 * version: b${version}
                 * image: docker.io/tmaxcloudck/hypercloud-single-operator:b${version}
                 * GitHub : https://github.com/tmax-cloud/hypercloud-single-operator
+		* ChangeLog : https://github.com/tmax-cloud/hypercloud-single-operator/blob/main/CHANGELOG.md
+		* CRD : https://github.com/tmax-cloud/hypercloud-single-operator/tree/main/build/manifests/v${version}
 
                 Multi-operator 배포
                 * HyperCloud5 multi operator
                 * version: b${version}
                 * image: docker.io/tmaxcloudck/hypercloud-multi-operator:b${version}
                 * GitHub : https://github.com/tmax-cloud/hypercloud-multi-operator
+		* ChangeLog : https://github.com/tmax-cloud/hypercloud-multi-operator/blob/master/CHANGELOG.md
+		* CRD : https://github.com/tmax-cloud/hypercloud-multi-operator/tree/master/build/manifests/v${version}
 
                 ===
 
