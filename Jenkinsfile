@@ -8,6 +8,7 @@ node {
 	        DisApiServer()
 	        DisSingleOperator()
 	        DisMultiOperator()
+		DisMultiAgent()
 	        SendMail()
 	        break
         case 'only-api-server':
@@ -18,6 +19,9 @@ node {
             break
         case 'only-multi-operator':
             DisMultiOperator()
+            break
+        case 'only-multi-agent':
+            DisMultiAgent()
             break
         default:
             break
@@ -73,7 +77,7 @@ void SendMail(){
                 ===
 
                 """,
-             to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;chanyong_jeon@tmax.co.kr;byongjohn_han@tmax.co.kr",
+             to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;chanyong_jeon@tmax.co.kr;byongjohn_han@tmax.co.kr";sangwon_cho@tmax.co.kr,
              from: "seungwon_lee@tmax.co.kr"
         )
     }
@@ -291,6 +295,68 @@ void DisMultiOperator() {
     }
 }
 
+void DisMultiAgent() {
+    def gitHubBaseAddress = "github.com"
+    def gitAddress = "${gitHubBaseAddress}/tmax-cloud/hypercloud-multi-operator.git"
+    def homeDir = "/var/lib/jenkins/workspace/hypercloud5-integrated"
+    def buildDir = "${homeDir}/multi-agent"
+    def scriptHome = "${buildDir}/scripts"
+    def version = "${params.majorVersion}.${params.minorVersion}.${params.tinyVersion}.${params.hotfixVersion}"
+    def imageTag = "b${version}"
+    def userName = "dnxorjs1"
+    def userEmail = "taegeon_woo@tmax.co.kr"
+
+
+    dir(buildDir){
+        stage('Multi-agent (git pull)') {
+            git branch: "${params.multiAgentBranch}",
+            credentialsId: '${userName}',
+            url: "http://${gitAddress}"
+
+            // git pull
+            sh "git checkout ${params.multiAgentBranch}"
+            sh "git config --global user.name ${userName}"
+            sh "git config --global user.email ${userEmail}"
+            sh "git config --global credential.helper store"
+
+            sh "git fetch --all"
+            sh "git reset --hard origin/${params.multiAgentBranch}"
+            sh "git pull origin ${params.multiAgentBranch}"
+        }
+
+        stage('Multi-agent (image build & push)'){
+           sh "sudo docker build --tag tmaxcloudck/hypercloud-multi-agent:${imageTag} ."
+            sh "sudo docker push tmaxcloudck/hypercloud-multi-agent:${imageTag}"
+            sh "sudo docker rmi tmaxcloudck/hypercloud-multi-agent:${imageTag}"
+        }
+
+        stage('Multi-agent (make change log)'){
+            preVersion = sh(script:"sudo git describe --tags --abbrev=0", returnStdout: true)
+            preVersion = preVersion.substring(1)
+            echo "preVersion of multiAgent : ${preVersion}"
+            sh "sudo sh ${scriptHome}/make-changelog.sh ${version} ${preVersion}"
+        }
+
+        stage('Multi-agent (git push)'){
+            sh "git checkout ${params.multiAgentBranch}"
+
+            sh "git config --global user.name ${userName}"
+            sh "git config --global user.email ${userEmail}"
+            sh "git config --global credential.helper store"
+            sh "git add -A"
+
+            sh (script:'git commit -m "[Distribution] Hypercloud-multi-agent- ${version} " || true')
+            sh "git tag v${version}"
+
+            sh "sudo git push -u origin +${params.multiAgentBranch}"
+            sh "sudo git push origin v${version}"
+
+            sh "git fetch --all"
+            sh "git reset --hard origin/${params.multiAgentBranch}"
+            sh "git pull origin ${params.multiAgentBranch}"
+        }
+    }
+}
 
 
 
