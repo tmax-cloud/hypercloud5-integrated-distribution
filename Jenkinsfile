@@ -297,7 +297,7 @@ void DisMultiOperator() {
 
 void DisMultiAgent() {
     def gitHubBaseAddress = "github.com"
-    def gitAddress = "${gitHubBaseAddress}/tmax-cloud/hypercloud-multi-operator.git"
+    def gitAddress = "${gitHubBaseAddress}/tmax-cloud/hypercloud-multi-agent.git"
     def homeDir = "/var/lib/jenkins/workspace/hypercloud5-integrated"
     def buildDir = "${homeDir}/multi-agent"
     def scriptHome = "${buildDir}/scripts"
@@ -325,8 +325,8 @@ void DisMultiAgent() {
         }
 
         stage('Multi-agent (image build & push)'){
-           sh "sudo docker build --tag tmaxcloudck/hypercloud-multi-agent:${imageTag} ."
-            sh "sudo docker push tmaxcloudck/hypercloud-multi-agent:${imageTag}"
+           sh "sudo make docker-build IMG=tmaxcloudck/hypercloud-multi-agent:${imageTag} ."
+            sh "sudo make docker-push tmaxcloudck/hypercloud-multi-agent:${imageTag}"
             sh "sudo docker rmi tmaxcloudck/hypercloud-multi-agent:${imageTag}"
         }
 
