@@ -326,7 +326,7 @@ void DisMultiAgent() {
 
         stage('Multi-agent (image build & push)'){
            sh "sudo make docker-build IMG=tmaxcloudck/hypercloud-multi-agent:${imageTag} ."
-            sh "sudo make docker-push tmaxcloudck/hypercloud-multi-agent:${imageTag}"
+            sh "sudo make docker-push IMG=tmaxcloudck/hypercloud-multi-agent:${imageTag}"
             sh "sudo docker rmi tmaxcloudck/hypercloud-multi-agent:${imageTag}"
         }
 
