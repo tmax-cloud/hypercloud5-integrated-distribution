@@ -393,7 +393,7 @@ void DisTFCOperator() {
 	  sh "echo create build directory"
 	  dir(buildDir){	
 	      new File(buildDir).mkdir()
-	      git branch: "${params.buildBranch}",
+	      git branch: "${params.tfcOperatorBranch}",
 	      credentialsId: '${credentialsId}',
           url: "https://${gitAddress}"
 	  }
@@ -405,10 +405,10 @@ void DisTFCOperator() {
         dir(buildDir){
             // git pull
 
-            sh "git checkout ${params.buildBranch}"
+            sh "git checkout ${params.tfcOperatorBranch}"
 	    sh "git fetch --all"
-            sh "git reset --hard origin/${params.buildBranch}"
-            sh "git pull origin ${params.buildBranch}"
+            sh "git reset --hard origin/${params.tfcOperatorBranch}"
+            sh "git pull origin ${params.tfcOperatorBranch}"
 
             sh '''#!/bin/bash
             export PATH=$PATH:/usr/local/go/bin
@@ -447,19 +447,19 @@ void DisTFCOperator() {
             sh "git config --global user.email ${userEmail}"
 	    sh "git config --global credential.helper store"		
 		
-            sh "git checkout ${params.buildBranch}"
+            sh "git checkout ${params.tfcOperatorBranch}"
             sh "git add -A"
 			sh "git reset ./config/manager/kustomization.yaml"
             def commitMsg = "[Distribution] Release commit for tfc-operator v${version}"
             sh (script: "git commit -m \"${commitMsg}\" || true")
             sh "git tag v${version}"
-	    sh "sudo git push -u origin +${params.buildBranch}"
+	    sh "sudo git push -u origin +${params.tfcOperatorBranch}"
             sh "sudo git push origin v${version}"
 		
 		
 	    sh "git fetch --all"
-            sh "git reset --hard origin/${params.buildBranch}"
-	    sh "git pull origin ${params.buildBranch}"
+            sh "git reset --hard origin/${params.tfcOperatorBranch}"
+	    sh "git pull origin ${params.tfcOperatorBranch}"
         }
     }
 }
