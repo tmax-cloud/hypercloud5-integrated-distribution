@@ -435,6 +435,8 @@ void DisTFCOperator() {
     }
 
     stage('make-changelog') {
+	preVersion = sh(script:"sudo git describe --tags --abbrev=0", returnStdout: true)
+        preVersion = preVersion.substring(1)
         sh "echo targetVersion: ${version}, preVersion: ${preVersion}"
         sh "sudo sh ${scriptHome}/make-changelog.sh ${version} ${preVersion}"
     }
