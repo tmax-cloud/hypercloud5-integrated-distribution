@@ -84,6 +84,14 @@ void SendMail(){
                 * GitHub : https://github.com/tmax-cloud/hypercloud-multi-agent/tree/dev/cho
                 * ChangeLog : https://github.com/tmax-cloud/hypercloud-multi-agent/blob/dev/cho/CHANGELOG.md
 		
+                tfc-operator 배포
+                * Terraform Apply Claim Operator 배포
+                * version: b${version}
+                * image: docker.io/tmaxcloudck/tfc-operator:b${version}
+                * GitHub : https://github.com/tmax-cloud/tfc-operator
+                * ChangeLog : https://github.com/tmax-cloud/tfc-operator/blob/main/CHANGELOG.md
+		* CRD: https://github.com/tmax-cloud/tfc-operator/tree/main/manifests/v${version}
+
                 ===
 
                 """,
@@ -442,9 +450,7 @@ void DisTFCOperator() {
     }
 
     stage('git commit & push') {
-        dir("${buildDir}") {
-		
-	
+        dir("${buildDir}") {	
 	    sh "git config --global user.name ${userName}"
             sh "git config --global user.email ${userEmail}"
 	    sh "git config --global credential.helper store"		
