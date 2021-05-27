@@ -378,96 +378,75 @@ void DisMultiAgent() {
 
 void DisTFCOperator() {
     def gitHubBaseAddress = "github.com"
-    def goHome = "/usr/local/go/bin"
-    def buildDir = "/var/lib/jenkins/workspace/tfc-operator"  //
-
-    def scriptHome = "${buildDir}/scripts"
-	
     def gitAddress = "${gitHubBaseAddress}/tmax-cloud/tfc-operator.git"
-
-
+    def homeDir = "/var/lib/jenkins/workspace/hypercloud5-integrated"
+    def buildDir = "${homeDir}/tfc-operator"
+    def scriptHome = "${buildDir}/scripts"
     def version = "${params.majorVersion}.${params.minorVersion}.${params.tinyVersion}.${params.hotfixVersion}"
-    def preVersion = "${params.preVersion}"
-
     def imageTag = "b${version}"
-				
     def userName = "gyeongyeol-choi"
-	
-    def credentialsId = "gyeongyeol-choi"
     def userEmail = "gyeongyeol_choi@tmax.co.kr"
-	
-    stage('git clone') {	
-	if(!fileExists(buildDir)){
-	  sh "echo create build directory"
-	  dir(buildDir){	
-	      new File(buildDir).mkdir()
-	      git branch: "${params.tfcOperatorBranch}",
-	      credentialsId: '${credentialsId}',
-          url: "https://${gitAddress}"
-	  }
-	}
-        sh "echo build directory is existed"
-    }
-	
-    stage('git pull') { 
-        dir(buildDir){
-            // git pull
 
+
+    dir(buildDir){
+        stage('tfc-operator (git pull)') {
+            git branch: "${params.tfcOperatorBranch}",
+            credentialsId: '${userName}',
+            url: "http://${gitAddress}"
+
+            // git pull
             sh "git checkout ${params.tfcOperatorBranch}"
-	    sh "git fetch --all"
+            sh "git config --global user.name ${userName}"
+            sh "git config --global user.email ${userEmail}"
+            sh "git config --global credential.helper store"
+
+            sh "git fetch --all"
             sh "git reset --hard origin/${params.tfcOperatorBranch}"
             sh "git pull origin ${params.tfcOperatorBranch}"
 
             sh '''#!/bin/bash
-            export PATH=$PATH:/usr/local/go/bin
-            export GO111MODULE=on
-            go build -o bin/manager main.go
-            '''
+                export PATH=$PATH:/usr/local/go/bin
+                export GO111MODULE=on
+                go build -o bin/manager main.go
+                '''
         }
-    }
-    
-    stage('make manifests') {
-	    sh "sed -i 's#{imageTag}#${imageTag}#' ./config/manager/kustomization.yaml"
-        sh "sudo kubectl kustomize ./config/default/ > bin/tfc-operator-v${version}.yaml"
-        sh "sudo kubectl kustomize ./config/crd/ > bin/crd-v${version}.yaml"
-        sh "sudo tar -zvcf bin/tfc-operator-manifests-v${version}.tar.gz bin/tfc-operator-v${version}.yaml bin/crd-v${version}.yaml"
-        
-        sh "sudo mkdir -p manifests/v${version}"
-        sh "sudo cp bin/*v${version}.yaml manifests/v${version}/"
-    }
 
-    stage('image build/push') {
-        sh "sudo docker build --tag tmaxcloudck/tfc-operator:${imageTag} ."
-        sh "sudo docker push tmaxcloudck/tfc-operator:${imageTag}"
-        sh "sudo docker rmi tmaxcloudck/tfc-operator:${imageTag}"
-    }
+        stage('tfc-operator (make manifests)') {
+            sh "sed -i 's#{imageTag}#${imageTag}#' ./config/manager/kustomization.yaml"
+            sh "sudo kubectl kustomize ./config/default/ > bin/tfc-operator-v${version}.yaml"
+            sh "sudo kubectl kustomize ./config/crd/ > bin/crd-v${version}.yaml"
+            sh "sudo tar -zvcf bin/tfc-operator-manifests-v${version}.tar.gz bin/tfc-operator-v${version}.yaml bin/crd-v${version}.yaml"
 
-    stage('make-changelog') {
-	preVersion = sh(script:"sudo git describe --tags --abbrev=0", returnStdout: true)
-        preVersion = preVersion.substring(1)
-        sh "echo targetVersion: ${version}, preVersion: ${preVersion}"
-        sh "sudo sh ${scriptHome}/make-changelog.sh ${version} ${preVersion}"
-    }
+            sh "sudo mkdir -p build/manifests/v${version}"
+            sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
+        }
 
-    stage('git commit & push') {
-        dir("${buildDir}") {	
-	    sh "git config --global user.name ${userName}"
-            sh "git config --global user.email ${userEmail}"
-	    sh "git config --global credential.helper store"		
-		
+        stage('tfc-operator (image build & push)'){
+            sh "sudo docker build --tag tmaxcloudck/tfc-operator:${imageTag} ."
+            sh "sudo docker push tmaxcloudck/tfc-operator:${imageTag}"
+            sh "sudo docker rmi tmaxcloudck/tfc-operator:${imageTag}"
+        }
+
+        stage('tfc-operator (make change log)'){
+            preVersion = sh(script:"sudo git describe --tags --abbrev=0", returnStdout: true)
+            preVersion = preVersion.substring(1)
+            echo "preVersion of tfc-operator : ${preVersion}"
+            sh "sudo sh ${scriptHome}/make-changelog.sh ${version} ${preVersion}"
+        }
+
+        stage('tfc-operator (git push)'){
             sh "git checkout ${params.tfcOperatorBranch}"
             sh "git add -A"
-			sh "git reset ./config/manager/kustomization.yaml"
+            sh "git reset ./config/manager/kustomization.yaml"
             def commitMsg = "[Distribution] Release commit for tfc-operator v${version}"
             sh (script: "git commit -m \"${commitMsg}\" || true")
             sh "git tag v${version}"
-	    sh "sudo git push -u origin +${params.tfcOperatorBranch}"
+            sh "sudo git push -u origin +${params.tfcOperatorBranch}"
             sh "sudo git push origin v${version}"
-		
-		
-	    sh "git fetch --all"
+
+            sh "git fetch --all"
             sh "git reset --hard origin/${params.tfcOperatorBranch}"
-	    sh "git pull origin ${params.tfcOperatorBranch}"
+            sh "git pull origin ${params.tfcOperatorBranch}"
         }
     }
 }
