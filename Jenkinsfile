@@ -9,6 +9,7 @@ node {
 	        DisSingleOperator()
 	        DisMultiOperator()
 		DisMultiAgent()
+		DisTFCOperator()
 	        SendMail()
 	        break
         case 'only-api-server':
