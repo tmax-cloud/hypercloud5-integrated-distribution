@@ -10,6 +10,7 @@ node {
 	        DisMultiOperator()
 		DisMultiAgent()
 		DisTFCOperator()
+               UploadCRD()
 	        SendMail()
 	        break
         case 'only-api-server':
@@ -17,9 +18,11 @@ node {
             break
         case 'only-single-operator':
             DisSingleOperator()
+            UploadCRD()
             break
         case 'only-multi-operator':
             DisMultiOperator()
+            UploadCRD()
             break
         case 'only-multi-agent':
             DisMultiAgent()
@@ -91,7 +94,7 @@ void SendMail(){
                 * image: docker.io/tmaxcloudck/tfc-operator:b${version}
                 * GitHub : https://github.com/tmax-cloud/tfc-operator
                 * ChangeLog : https://github.com/tmax-cloud/tfc-operator/blob/main/CHANGELOG.md
-		* CRD: https://github.com/tmax-cloud/tfc-operator/tree/main/manifests/v${version}
+                * CRD: https://github.com/tmax-cloud/tfc-operator/tree/main/manifests/v${version}
 
                 ===
 
@@ -208,6 +211,7 @@ void DisSingleOperator() {
 
             sh "sudo mkdir -p build/manifests/v${version}"
             sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
+            sh "sudo cp bin/hypercloud-single-operator-v${version}.yaml ${homeDir}/"
         }
 
         stage('Single-operator (image build & push)'){
@@ -282,6 +286,7 @@ void DisMultiOperator() {
 
             sh "sudo mkdir -p build/manifests/v${version}"
             sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
+            sh "sudo cp bin/hypercloud-multi-operator-v${version}.yaml ${homeDir}/"
         }
 
         stage('Multi-operator (image build & push)'){
@@ -450,4 +455,58 @@ void DisTFCOperator() {
             sh "git pull origin ${params.tfcOperatorBranch}"
         }
     }
+}
+
+void UploadCRD() {
+    def gitHubBaseAddress = "github.com"
+    def gitAddress = "${gitHubBaseAddress}/tmax-cloud/install-hypercloud.git"
+    def homeDir = "/var/lib/jenkins/workspace/hypercloud5-integrated"
+    def buildDir = "${homeDir}/install-hypercloud"
+    def version = "${params.majorVersion}.${params.minorVersion}.${params.tinyVersion}.${params.hotfixVersion}"
+    def userName = "aldlfkahs"
+    def userEmail = "seungwon_lee@tmax.co.kr"
+
+
+    dir(buildDir){
+        stage('Install-hypercloud (git pull)') {
+            git branch: "${params.installHypercloudBranch}",
+            credentialsId: '${userName}',
+            url: "http://${gitAddress}"
+
+            // git pull
+            sh "git checkout ${params.installHypercloudBranch}"
+            sh "git config --global user.name ${userName}"
+            sh "git config --global user.email ${userEmail}"
+            sh "git config --global credential.helper store"
+
+            sh "git fetch --all"
+            sh "git reset --hard origin/${params.installHypercloudBranch}"
+            sh "git pull origin ${params.installHypercloudBranch}"
+        }
+
+        stage('Install-hypercloud (upload CRD yaml)'){
+            sh "cp ${homeDir}/hypercloud-single-operator-v${version}.yaml hypercloud-single-operator/"
+            sh "cp ${homeDir}/hypercloud-multi-operator-v${version}.yaml hypercloud-multi-operator/"
+            sh "rm -f ${homeDir}/hypercloud-single-operator-v${version}.yaml ${homeDir}/hypercloud-multi-operator-v${version}.yaml"
+        }
+
+        stage('Install-hypercloud (git push)'){
+            sh "git checkout ${params.installHypercloudBranch}"
+
+            sh "git config --global user.name ${userName}"
+            sh "git config --global user.email ${userEmail}"
+            sh "git config --global credential.helper store"
+            sh "git add -A"
+
+            sh (script:'git commit -m "[Distribution] Hypercloud-api-server- ${version} " || true')
+            sh "git tag v${version}"
+
+            sh "sudo git push -u origin +${params.installHypercloudBranch}"
+            sh "sudo git push origin v${version}"
+
+            sh "git fetch --all"
+            sh "git reset --hard origin/${params.installHypercloudBranch}"
+            sh "git pull origin ${params.installHypercloudBranch}"
+        }
+    }   
 }
