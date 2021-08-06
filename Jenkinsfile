@@ -485,10 +485,10 @@ void UploadCRD() {
         }
 
         stage('Install-hypercloud (upload CRD yaml)'){
-            if (fileExists('${homeDir}/hypercloud-single-operator-v${version}.yaml')){
+            if (fileExists("${homeDir}/hypercloud-single-operator-v${version}.yaml")){
                 sh "cp ${homeDir}/hypercloud-single-operator-v${version}.yaml hypercloud-single-operator/"
             }
-            if (fileExists('${homeDir}/hypercloud-multi-operator-v${version}.yaml')){
+            if (fileExists("${homeDir}/hypercloud-multi-operator-v${version}.yaml")){
                 sh "cp ${homeDir}/hypercloud-multi-operator-v${version}.yaml hypercloud-multi-operator/"
             }
 
@@ -503,7 +503,7 @@ void UploadCRD() {
             sh "git config --global credential.helper store"
             sh "git add -A"
 
-            sh (script:'git commit -m "[Distribution] Hypercloud-api-server- ${version} " || true')
+            sh (script:'git commit -m "[Distribution] Upload Operator CRD yaml - ${version} " || true')
             sh "git tag v${version}"
 
             sh "sudo git push -u origin +${params.installHypercloudBranch}"
