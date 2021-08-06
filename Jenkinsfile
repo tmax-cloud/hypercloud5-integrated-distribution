@@ -4,15 +4,15 @@ node {
 	def hcIntegratedBuildDir = "/var/lib/jenkins/workspace/hypercloud5-integrated"
 
 	switch(distributionType){
-	    case 'integrated':
-	        DisApiServer()
-	        DisSingleOperator()
-	        DisMultiOperator()
-		DisMultiAgent()
-		DisTFCOperator()
-               UploadCRD()
-	        SendMail()
-	        break
+        case 'integrated':
+            DisApiServer()
+            DisSingleOperator()
+            DisMultiOperator()
+            DisMultiAgent()
+            DisTFCOperator()
+            UploadCRD()
+            SendMail()
+            break
         case 'only-api-server':
             DisApiServer()
             break
@@ -485,8 +485,13 @@ void UploadCRD() {
         }
 
         stage('Install-hypercloud (upload CRD yaml)'){
-            sh "cp ${homeDir}/hypercloud-single-operator-v${version}.yaml hypercloud-single-operator/"
-            sh "cp ${homeDir}/hypercloud-multi-operator-v${version}.yaml hypercloud-multi-operator/"
+            if (fileExists('${homeDir}/hypercloud-single-operator-v${version}.yaml')){
+                sh "cp ${homeDir}/hypercloud-single-operator-v${version}.yaml hypercloud-single-operator/"
+            }
+            if (fileExists('${homeDir}/hypercloud-multi-operator-v${version}.yaml')){
+                sh "cp ${homeDir}/hypercloud-multi-operator-v${version}.yaml hypercloud-multi-operator/"
+            }
+
             sh "rm -f ${homeDir}/hypercloud-single-operator-v${version}.yaml ${homeDir}/hypercloud-multi-operator-v${version}.yaml"
         }
 
