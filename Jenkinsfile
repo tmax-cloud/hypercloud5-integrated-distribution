@@ -113,9 +113,9 @@ void DisApiServer() {
     def scriptHome = "${buildDir}/scripts"
     def version = "${params.majorVersion}.${params.minorVersion}.${params.tinyVersion}.${params.hotfixVersion}"
     def imageTag = "b${version}"
-    def userName = "dnxorjs1"
-    def userEmail = "taegeon_woo@tmax.co.kr"
-
+    def userName = "aldlfkahs"
+    def userEmail = "seungwon_lee@tmax.co.kr"
+    def githubUserToken = "${params.githubUserToken}"
 
     dir(buildDir){
         stage('Api-server (git pull)') {
@@ -158,6 +158,7 @@ void DisApiServer() {
             sh (script:'git commit -m "[Distribution] Hypercloud-api-server- ${version} " || true')
             sh "git tag v${version}"
 
+            sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/hypercloud-api-server.git"
             sh "sudo git push -u origin +${params.apiServerBranch}"
             sh "sudo git push origin v${version}"
 
@@ -176,8 +177,8 @@ void DisSingleOperator() {
     def scriptHome = "${buildDir}/scripts"
     def version = "${params.majorVersion}.${params.minorVersion}.${params.tinyVersion}.${params.hotfixVersion}"
     def imageTag = "b${version}"
-    def userName = "dnxorjs1"
-    def userEmail = "taegeon_woo@tmax.co.kr"
+    def userName = "aldlfkahs"
+    def userEmail = "seungwon_lee@tmax.co.kr"
 
 
     dir(buildDir){
@@ -234,6 +235,7 @@ void DisSingleOperator() {
             def commitMsg = "[Distribution] Release commit for hypercloud-single-operator v${version}"
             sh (script: "git commit -m \"${commitMsg}\" || true")
             sh "git tag v${version}"
+            sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/hypercloud-single-operator.git"
             sh "sudo git push -u origin +${params.singleOperatorBranch}"
             sh "sudo git push origin v${version}"
 
@@ -309,6 +311,7 @@ void DisMultiOperator() {
             def commitMsg = "[Distribution] Release commit for hypercloud-multi-operator v${version}"
             sh (script: "git commit -m \"${commitMsg}\" || true")
             sh "git tag v${version}"
+            sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/hypercloud-multi-operator.git"
             sh "sudo git push -u origin +${params.multiOperatorBranch}"
             sh "sudo git push origin v${version}"
 
@@ -372,6 +375,7 @@ void DisMultiAgent() {
             sh (script:'git commit -m "[Distribution] Hypercloud-multi-agent- ${version} " || true')
             sh "git tag v${version}"
 
+            sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/hypercloud-multi-agent.git"
             sh "sudo git push -u origin +${params.multiAgentBranch}"
             sh "sudo git push origin v${version}"
 
@@ -447,6 +451,7 @@ void DisTFCOperator() {
             def commitMsg = "[Distribution] Release commit for tfc-operator v${version}"
             sh (script: "git commit -m \"${commitMsg}\" || true")
             sh "git tag v${version}"
+            sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/tfc-operator.git"
             sh "sudo git push -u origin +${params.tfcOperatorBranch}"
             sh "sudo git push origin v${version}"
 
@@ -506,6 +511,7 @@ void UploadCRD() {
             sh (script:'git commit -m "[Distribution] Upload Operator CRD yaml - ${version} " || true')
             sh "git tag v${version}"
 
+            sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/install-hypercloud.git"
             sh "sudo git push -u origin +${params.installHypercloudBranch}"
             sh "sudo git push origin v${version}"
 
