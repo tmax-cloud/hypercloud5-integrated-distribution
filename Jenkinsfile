@@ -285,10 +285,13 @@ void DisMultiOperator() {
             sh "sudo kubectl kustomize ./config/default/ > bin/hypercloud-multi-operator-v${version}.yaml"
             sh "sudo kubectl kustomize ./config/crd/ > bin/crd-v${version}.yaml"
             sh "sudo tar -zvcf bin/hypercloud-multi-operator-manifests-v${version}.tar.gz bin/hypercloud-multi-operator-v${version}.yaml bin/crd-v${version}.yaml"
+            sh "sudo cp ./config/capi-template/capi-aws-template.yaml build/manifests/v${version}/capi-aws-template-v${version}.yaml"
+            sh "sudo cp ./config/capi-template/capi-vsphere-template.yaml build/manifests/v${version}/capi-vsphere-template-v${version}.yaml"
 
             sh "sudo mkdir -p build/manifests/v${version}"
             sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
             sh "sudo cp bin/hypercloud-multi-operator-v${version}.yaml ${homeDir}/"
+            sh "sudo cp build/v${version}/manifest/capi-*-template-v${version}.yaml ${homeDir}/"
         }
 
         stage('Multi-operator (image build & push)'){
@@ -352,7 +355,7 @@ void DisMultiAgent() {
         }
 
         stage('Multi-agent (image build & push)'){
-           sh "sudo make docker-build IMG=tmaxcloudck/hypercloud-multi-agent:${imageTag} ."
+            sh "sudo make docker-build IMG=tmaxcloudck/hypercloud-multi-agent:${imageTag} ."
             sh "sudo make docker-push IMG=tmaxcloudck/hypercloud-multi-agent:${imageTag}"
             sh "sudo docker rmi tmaxcloudck/hypercloud-multi-agent:${imageTag}"
         }
@@ -495,6 +498,12 @@ void UploadCRD() {
             }
             if (fileExists("${homeDir}/hypercloud-multi-operator-v${version}.yaml")){
                 sh "cp ${homeDir}/hypercloud-multi-operator-v${version}.yaml hypercloud-multi-operator/"
+            }
+            if (fileExists("${homeDir}/capi-aws-template-v${version}.yaml")){
+                sh "cp ${homeDir}/capi-aws-template-v${version}.yaml hypercloud-multi-operator/"
+            }
+            if (fileExists("${homeDir}/capi-vsphere-template-v${version}.yaml")){
+                sh "cp ${homeDir}/capi-vsphere-template-v${version}.yaml hypercloud-multi-operator/"
             }
 
             sh "rm -f ${homeDir}/hypercloud-single-operator-v${version}.yaml ${homeDir}/hypercloud-multi-operator-v${version}.yaml"
