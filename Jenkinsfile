@@ -285,12 +285,12 @@ void DisMultiOperator() {
             sh "sudo kubectl kustomize ./config/default/ > bin/hypercloud-multi-operator-v${version}.yaml"
             sh "sudo kubectl kustomize ./config/crd/ > bin/crd-v${version}.yaml"
             sh "sudo tar -zvcf bin/hypercloud-multi-operator-manifests-v${version}.tar.gz bin/hypercloud-multi-operator-v${version}.yaml bin/crd-v${version}.yaml"
-            sh "sudo cp ./config/capi-template/capi-aws-template.yaml build/manifests/v${version}/capi-aws-template-v${version}.yaml"
-            sh "sudo cp ./config/capi-template/capi-vsphere-template.yaml build/manifests/v${version}/capi-vsphere-template-v${version}.yaml"
 
             sh "sudo mkdir -p build/manifests/v${version}"
             sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
             sh "sudo cp bin/hypercloud-multi-operator-v${version}.yaml ${homeDir}/"
+            sh "sudo cp ./config/capi-template/capi-aws-template.yaml build/manifests/v${version}/capi-aws-template-v${version}.yaml"
+            sh "sudo cp ./config/capi-template/capi-vsphere-template.yaml build/manifests/v${version}/capi-vsphere-template-v${version}.yaml"
             sh "sudo cp build/v${version}/manifest/capi-*-template-v${version}.yaml ${homeDir}/"
         }
 
