@@ -289,8 +289,9 @@ void DisMultiOperator() {
             sh "sudo mkdir -p build/manifests/v${version}"
             sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
             sh "sudo cp bin/hypercloud-multi-operator-v${version}.yaml ${homeDir}/"
-            sh "sudo cp ./config/capi-template/capi-aws-template.yaml build/manifests/capi-aws-template-v${version}.yaml
-            sh "sudo cp ./config/capi-template/capi-vsphere-template.yaml build/manifests/capi-vsphere-template-v${version}.yaml
+            sh "sudo cp ./config/capi-template/capi-aws-template.yaml build/manifests/v${version}/capi-aws-template-v${version}.yaml"
+            sh "sudo cp ./config/capi-template/capi-vsphere-template.yaml build/manifests/v${version}/capi-vsphere-template-v${version}.yaml"
+            sh "sudo cp build/v${version}/manifest/capi-*-template-v${version}.yaml ${homeDir}/"
         }
 
         stage('Multi-operator (image build & push)'){
