@@ -99,7 +99,7 @@ void SendMail(){
                 ===
 
                 """,
-             to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;kyunghoon_min@tmax.co.kr;byongjohn_han@tmax.co.kr;sangwon_cho@tmax.co.kr",
+             to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;kyunghoon_min@tmax.co.kr;byongjohn_han@tmax.co.kr;",
              from: "seungwon_lee@tmax.co.kr"
         )
     }
@@ -155,7 +155,8 @@ void DisApiServer() {
             sh "git config --global credential.helper store"
             sh "git add -A"
 
-            sh (script:'git commit -m "[Distribution] Hypercloud-api-server- ${version} " || true')
+            def commitMsg = "[Distribution] Release commit for Hypercloud-api-server- v${version}"
+            sh (script: "git commit -m \"${commitMsg}\" || true")
             sh "git tag v${version}"
 
             sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/hypercloud-api-server.git"
@@ -311,7 +312,7 @@ void DisMultiOperator() {
             sh "git checkout ${params.multiOperatorBranch}"
             sh "git add -A"
             sh "git reset ./config/manager/kustomization.yaml"
-            def commitMsg = "[Distribution] Release commit for hypercloud-multi-operator v${version}"
+            def commitMsg = "[Distribution] Release commit for Hypercloud-multi-operator v${version}"
             sh (script: "git commit -m \"${commitMsg}\" || true")
             sh "git tag v${version}"
             sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/hypercloud-multi-operator.git"
@@ -375,7 +376,8 @@ void DisMultiAgent() {
             sh "git config --global credential.helper store"
             sh "git add -A"
 
-            sh (script:'git commit -m "[Distribution] Hypercloud-multi-agent- ${version} " || true')
+            def commitMsg = "[Distribution] Release commit for Hypercloud-multi-agent v${version}"
+            sh (script: "git commit -m \"${commitMsg}\" || true")		
             sh "git tag v${version}"
 
             sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/hypercloud-multi-agent.git"
@@ -517,7 +519,8 @@ void UploadCRD() {
             sh "git config --global credential.helper store"
             sh "git add -A"
 
-            sh (script:'git commit -m "[Distribution] Upload Operator CRD yaml - ${version} " || true')
+            def commitMsg = "[Distribution] Upload Operator CRD yaml - v${version}"
+            sh (script: "git commit -m \"${commitMsg}\" || true")            
 
             sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/install-hypercloud.git"
             sh "sudo git push -u origin +${params.installHypercloudBranch}"
