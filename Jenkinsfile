@@ -518,7 +518,6 @@ void UploadCRD() {
             sh "git add -A"
 
             sh (script:'git commit -m "[Distribution] Upload Operator CRD yaml - ${version} " || true')
-            sh "git tag v${version}"
 
             sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/install-hypercloud.git"
             sh "sudo git push -u origin +${params.installHypercloudBranch}"
