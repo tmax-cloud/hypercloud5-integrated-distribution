@@ -524,7 +524,6 @@ void UploadCRD() {
 
             sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/install-hypercloud.git"
             sh "sudo git push -u origin +${params.installHypercloudBranch}"
-            sh "sudo git push origin v${version}"
 
             sh "git fetch --all"
             sh "git reset --hard origin/${params.installHypercloudBranch}"
