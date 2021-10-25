@@ -254,6 +254,7 @@ void DisMultiOperator() {
     def buildDir = "${homeDir}/multi-operator"
     def scriptHome = "${buildDir}/scripts"
     def version = "${params.majorVersion}.${params.minorVersion}.${params.tinyVersion}.${params.hotfixVersion}"
+    def pkgVersion = "v0.${params.majorVersion}.${params.minorVersion}-b${params.tinyVersion}f${params.hotfixVersion}"
     def imageTag = "b${version}"
     def userName = "dnxorjs1"
     def userEmail = "taegeon_woo@tmax.co.kr"
@@ -315,6 +316,7 @@ void DisMultiOperator() {
             def commitMsg = "[Distribution] Release commit for Hypercloud-multi-operator v${version}"
             sh (script: "git commit -m \"${commitMsg}\" || true")
             sh "git tag v${version}"
+            sh "git tag ${pkgVersion}"
             sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/hypercloud-multi-operator.git"
             sh "sudo git push -u origin +${params.multiOperatorBranch}"
             sh "sudo git push origin v${version}"
