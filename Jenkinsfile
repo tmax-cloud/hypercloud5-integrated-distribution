@@ -320,6 +320,7 @@ void DisMultiOperator() {
             sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/hypercloud-multi-operator.git"
             sh "sudo git push -u origin +${params.multiOperatorBranch}"
             sh "sudo git push origin v${version}"
+            sh "sudo git push origin ${pkgVersion}"
 
             sh "git fetch --all"
             sh "git reset --hard origin/${params.multiOperatorBranch}"
