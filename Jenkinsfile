@@ -602,19 +602,19 @@ void MakeKeyMappingFile() {
 
     dir(buildDir){
         stage('schema-converter (git pull)') {
-            git branch: "${params.schemaConverterBranch}",
+            git branch: "main",
             credentialsId: '${userName}',
             url: "http://${gitAddress}"
 
             // git pull
-            sh "git checkout ${params.schemaConverterBranch}"
+            sh "git checkout main"
             sh "git config --global user.name ${userName}"
             sh "git config --global user.email ${userEmail}"
             sh "git config --global credential.helper store"
 
             sh "git fetch --all"
-            sh "git reset --hard origin/${params.schemaConverterBranch}"
-            sh "git pull origin ${params.schemaConverterBranch}"
+            sh "git reset --hard origin/main"
+            sh "git pull origin main"
         }
 
         stage('schema-converter (sed file)') {
@@ -650,14 +650,14 @@ void TestUploadCRD() {
             url: "http://${gitAddress}"
 
             // git pull
-            sh "git checkout ${params.installHypercloudBranch}"
+            sh "git checkout jenkins-test"
             sh "git config --global user.name ${userName}"
             sh "git config --global user.email ${userEmail}"
             sh "git config --global credential.helper store"
 
             sh "git fetch --all"
-            sh "git reset --hard origin/${params.installHypercloudBranch}"
-            sh "git pull origin ${params.installHypercloudBranch}"
+            sh "git reset --hard origin/jenkins-test"
+            sh "git pull origin jenkins-test"
         }
 
         stage('Install-hypercloud (upload CRD yaml)'){
@@ -687,7 +687,7 @@ void TestUploadCRD() {
         }
 
         stage('Install-hypercloud (git push)'){
-            sh "git checkout ${params.installHypercloudBranch}"
+            sh "git checkout jenkins-test"
 
             sh "git config --global user.name ${userName}"
             sh "git config --global user.email ${userEmail}"
@@ -698,11 +698,11 @@ void TestUploadCRD() {
             sh (script: "git commit -m \"${commitMsg}\" || true")            
 
             sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/install-hypercloud.git"
-            sh "sudo git push -u origin +${params.installHypercloudBranch}"
+            sh "sudo git push -u origin +jenkins-test"
 
             sh "git fetch --all"
-            sh "git reset --hard origin/${params.installHypercloudBranch}"
-            sh "git pull origin ${params.installHypercloudBranch}"
+            sh "git reset --hard origin/jenkins-test"
+            sh "git pull origin jenkins-test"
         }
     }   
 }
