@@ -688,7 +688,7 @@ void TestUploadCRD() {
 
             sh "sudo rm -f ${homeDir}/hypercloud-single-operator-v${version}.yaml ${homeDir}/hypercloud-multi-operator-v${version}.yaml"
             sh "sudo rm -f ${homeDir}/convert/*.yaml"
-            sh "sudo rm -f ${homeDir}/convert/result"
+            sh "sudo rm -f ${homeDir}/convert/result/*.yaml"
         }
 
         stage('Install-hypercloud (git push)'){
