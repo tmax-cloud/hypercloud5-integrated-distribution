@@ -598,7 +598,7 @@ void MakeKeyMappingFile() {
     def buildDir = "${homeDir}/schema-converter"
     def userName = "aldlfkahs"
     def userEmail = "seungwon_lee@tmax.co.kr"
-    def GOOGLE_APPLICATION_CREDENTIALS = "/var/lib/jenkins/workspace/hypercloud5-integrated/credential/gcp-credential.json"
+    //def GOOGLE_APPLICATION_CREDENTIALS = "/var/lib/jenkins/workspace/hypercloud5-integrated/credential/gcp-credential.json"
 
     dir(buildDir){
         stage('schema-converter (git pull)') {
@@ -628,8 +628,8 @@ void MakeKeyMappingFile() {
 
         stage('schema-converter (convert CRD yaml)') {
             dir("${buildDir}/schema-converter"){
+                sh "export GOOGLE_APPLICATION_CREDENTIALS=/var/lib/jenkins/workspace/hypercloud5-integrated/credential/gcp-credential.json"
                 sh "chmod +x gradlew"
-                sh "chmod -R 777 $homeDir/convert"
                 sh "./gradlew"
                 sh "./gradlew run"
             }
@@ -665,7 +665,6 @@ void TestUploadCRD() {
         }
 
         stage('Install-hypercloud (upload CRD yaml)'){
-            sh "chmod -R 777 $homeDir/convert"
 
             if (fileExists("${homeDir}/hypercloud-single-operator-v${version}.yaml")){
                 sh "cp ${homeDir}/hypercloud-single-operator-v${version}.yaml hypercloud-single-operator/"
@@ -687,9 +686,9 @@ void TestUploadCRD() {
                 sh "cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-v${version}.yaml hypercloud-multi-operator/crd/"
             }
 
-            sh "rm -f ${homeDir}/hypercloud-single-operator-v${version}.yaml ${homeDir}/hypercloud-multi-operator-v${version}.yaml"
-            sh "rm -f ${homeDir}/convert/*.yaml"
-            sh "rm -f ${homeDir}/convert/result"
+            sh "sudo rm -f ${homeDir}/hypercloud-single-operator-v${version}.yaml ${homeDir}/hypercloud-multi-operator-v${version}.yaml"
+            sh "sudo rm -f ${homeDir}/convert/*.yaml"
+            sh "sudo rm -f ${homeDir}/convert/result"
         }
 
         stage('Install-hypercloud (git push)'){
