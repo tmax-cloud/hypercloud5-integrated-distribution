@@ -679,10 +679,10 @@ void TestUploadCRD() {
                 sh "cp ${homeDir}/capi-vsphere-template-v${version}.yaml hypercloud-multi-operator/"
             }
 
-            if (fileExists("${homeDir}/convert/result/hypercloud-single-operator-v${version}.yaml")){
+            if (fileExists("${homeDir}/convert/result/hypercloud-single-operator-crd-v${version}.yaml")){
                 sh "cp ${homeDir}/convert/result/hypercloud-single-operator-crd-v${version}.yaml hypercloud-single-operator/crd/"
             }
-            if (fileExists("${homeDir}/convert/result/hypercloud-multi-operator-v${version}.yaml")){
+            if (fileExists("${homeDir}/convert/result/hypercloud-multi-operator-crd-v${version}.yaml")){
                 sh "cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-v${version}.yaml hypercloud-multi-operator/crd/"
             }
 
