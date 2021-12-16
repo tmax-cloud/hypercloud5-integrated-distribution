@@ -585,7 +585,12 @@ void TestDisSingleOperator() {
 
             sh "sudo mkdir -p build/manifests/v${version}"
             sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
-            sh "sudo cp bin/hypercloud-single-operator-crd-v${version}.yaml ${homeDir}/convert" // 폴더가 없으면 만들어주나?
+            // make directory if not exists
+            dir("${homeDir}/convert"){
+                if(!fileExists("/"))
+                    sh "mkdir convert"
+            }
+            sh "sudo cp bin/hypercloud-single-operator-crd-v${version}.yaml ${homeDir}/convert/" // 폴더가 없으면 만들어주나?
             sh "sudo cp bin/hypercloud-single-operator-v${version}.yaml ${homeDir}/"
         }
     }
