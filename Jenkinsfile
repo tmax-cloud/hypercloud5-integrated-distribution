@@ -628,8 +628,8 @@ void MakeKeyMappingFile() {
 
         stage('schema-converter (convert CRD yaml)') {
             dir("${buildDir}/schema-converter"){
-//                sh "export GOOGLE_APPLICATION_CREDENTIALS=/root/swlee/gcp-credential.json"
                 sh "chmod +x gradlew"
+                sh "chmod -R 777 $homeDir/convert"
                 sh "./gradlew"
                 sh "./gradlew run"
             }
@@ -665,6 +665,8 @@ void TestUploadCRD() {
         }
 
         stage('Install-hypercloud (upload CRD yaml)'){
+            sh "chmod -R 777 $homeDir/convert"
+
             if (fileExists("${homeDir}/hypercloud-single-operator-v${version}.yaml")){
                 sh "cp ${homeDir}/hypercloud-single-operator-v${version}.yaml hypercloud-single-operator/"
             }
