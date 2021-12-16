@@ -627,7 +627,7 @@ void MakeKeyMappingFile() {
         }
 
         stage('schema-converter (convert CRD yaml)') {
-            dir(buildDir){
+            dir("${buildDir}/converter"){
 //                sh "export GOOGLE_APPLICATION_CREDENTIALS=/root/swlee/gcp-credential.json"
                 sh "chmod +x gradlew"
                 sh "./gradlew"
