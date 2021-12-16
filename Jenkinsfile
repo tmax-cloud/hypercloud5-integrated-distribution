@@ -598,7 +598,7 @@ void MakeKeyMappingFile() {
     def buildDir = "${homeDir}/schema-converter"
     def userName = "aldlfkahs"
     def userEmail = "seungwon_lee@tmax.co.kr"
-    def GOOGLE_APPLICATION_CREDENTIALS = "/root/swlee/gcp-credential.json"
+    def GOOGLE_APPLICATION_CREDENTIALS = "/var/lib/jenkins/workspace/hypercloud5-integrated/credential/gcp-credential.json"
 
     dir(buildDir){
         stage('schema-converter (git pull)') {
@@ -619,7 +619,7 @@ void MakeKeyMappingFile() {
 
         stage('schema-converter (sed file)') {
             sh "sudo sed -i 's#C:\\\\\\\\cicd-crd\\\\\\\\#'$homeDir'/convert#g' ./schema-converter/src/main/java/com/tmax/ck/main/Main.java"
-            sh "sudo sed -i 's#String outputDir = rootDir + System.currentTimeMillis() + \"\\\\\\\\\"#String outputDir = \"'$homeDir'/convert/result\"#g' ./schema-converter/src/main/java/com/tmax/ck/main/Main.java"
+            sh "sudo sed -i 's#String outputDir = rootDir + System.currentTimeMillis() + \"\\\\\\\\\"#String outputDir = \"'$homeDir'/convert/result/\"#g' ./schema-converter/src/main/java/com/tmax/ck/main/Main.java"
 
             if ("${params.translateCRD}" == 'true') {
                 sh "sudo sed -i 's#autoTranslation = false#autoTranslation = true#g' ./schema-converter/src/main/java/com/tmax/ck/main/Main.java"
@@ -627,9 +627,12 @@ void MakeKeyMappingFile() {
         }
 
         stage('schema-converter (convert CRD yaml)') {
-            sh "chmod +x ./schema-converter/gradlew"
-            sh "./schema-converter/gradlew"
-            sh "./schema-converter/gradlew run"
+            dir(buildDir){
+//                sh "export GOOGLE_APPLICATION_CREDENTIALS=/root/swlee/gcp-credential.json"
+                sh "chmod +x gradlew"
+                sh "./gradlew"
+                sh "./gradlew run"
+            }
         }
     }
 }
