@@ -618,7 +618,7 @@ void MakeKeyMappingFile() {
         }
 
         stage('schema-converter (sed file)') {
-            sh "sudo sed -i 's#C\:\\\\schema\\\\#'$homeDir'\/convert#g' ./schema-converter/src/main/java/com/tmax/ck/main/Main.java"
+            sh "sudo sed -i 's#C:\\\\schema\\\\#'$homeDir'\/convert#g' ./schema-converter/src/main/java/com/tmax/ck/main/Main.java"
             sh "sudo sed -i 's#String outputDir = rootDir + System.currentTimeMillis() + \"\\\\\"#String outputDir = \"'$homeDir'\/convert\/\/result\"#g' ./schema-converter/src/main/java/com/tmax/ck/main/Main.java"
 
             if ("${params.translateCRD}" == 'true') {
