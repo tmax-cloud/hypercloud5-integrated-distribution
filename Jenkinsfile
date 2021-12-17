@@ -223,12 +223,14 @@ void DisSingleOperator() {
             sh "sudo cp bin/hypercloud-single-operator-crd-v${version}.yaml ${homeDir}/convert/"
         }
 
+	/*
         stage('Single-operator (image build & push)'){
             sh "sudo docker build --tag tmaxcloudck/hypercloud-single-operator:${imageTag} ."
             sh "sudo docker push tmaxcloudck/hypercloud-single-operator:${imageTag}"
             sh "sudo docker rmi tmaxcloudck/hypercloud-single-operator:${imageTag}"
         }
-
+	*/
+	    
         stage('Single-operator (make change log)'){
             preVersion = sh(script:"sudo git describe --tags --abbrev=0", returnStdout: true)
             preVersion = preVersion.substring(1)
@@ -236,6 +238,7 @@ void DisSingleOperator() {
             sh "sudo sh ${scriptHome}/make-changelog.sh ${version} ${preVersion}"
         }
 
+	/*
         stage('Single-operator (git push)'){
             sh "git checkout ${params.singleOperatorBranch}"
             sh "git add -A"
@@ -251,6 +254,7 @@ void DisSingleOperator() {
             sh "git reset --hard origin/${params.singleOperatorBranch}"
             sh "git pull origin ${params.singleOperatorBranch}"
         }
+	*/
     }
 }
 
