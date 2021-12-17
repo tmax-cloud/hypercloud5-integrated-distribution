@@ -597,8 +597,8 @@ void MakeKeyMappingFile() {
         stage('schema-converter (convert CRD yaml)') {
             dir("${buildDir}/schema-converter"){
                 sh "chmod +x gradlew"
-                sh "./gradlew"
-                sh "./gradlew run"
+//                sh "sudo ./gradlew"
+                sh "sudo ./gradlew run"
             }
         }
     }
