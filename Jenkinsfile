@@ -214,7 +214,7 @@ void DisSingleOperator() {
             sh "sudo kubectl kustomize ./config/crd/ > bin/hypercloud-single-operator-crd-v${version}.yaml"
             sh "sudo sed -i 's#\$(CERTIFICATE_NAMESPACE)#hypercloud5-system#g' bin/hypercloud-single-operator*v${version}.yaml"
             sh "sudo sed -i 's#\$(CERTIFICATE_NAME)#hypercloud-single-operator-serving-cert#g' bin/hypercloud-single-operator*v${version}.yaml"
-//            sh "sudo tar -zvcf bin/hypercloud-single-operator-manifests-v${version}.tar.gz bin/hypercloud-single-operator-v${version}.yaml bin/hypercloud-single-operator-crd-v${version}.yaml"
+            sh "sudo tar -zvcf bin/hypercloud-single-operator-manifests-v${version}.tar.gz bin/hypercloud-single-operator-v${version}.yaml bin/hypercloud-single-operator-crd-v${version}.yaml"
 
             sh "sudo mkdir -p build/manifests/v${version}"
 	    sh "sudo mkdir -p ${homeDir}/convert"
