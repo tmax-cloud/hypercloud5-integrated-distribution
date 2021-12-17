@@ -217,7 +217,7 @@ void DisSingleOperator() {
 //            sh "sudo tar -zvcf bin/hypercloud-single-operator-manifests-v${version}.tar.gz bin/hypercloud-single-operator-v${version}.yaml bin/hypercloud-single-operator-crd-v${version}.yaml"
 
             sh "sudo mkdir -p build/manifests/v${version}"
-            sh "sudo mkdir -p $homeDir/convert"
+	    sh "sudo mkdir -p ${homeDir}/convert"
             sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
             sh "sudo cp bin/hypercloud-single-operator-v${version}.yaml ${homeDir}/"
             sh "sudo cp bin/hypercloud-single-operator-crd-v${version}.yaml ${homeDir}/convert/"
@@ -302,7 +302,7 @@ void DisMultiOperator() {
 //            sh "sudo tar -zvcf bin/hypercloud-multi-operator-manifests-v${version}.tar.gz bin/hypercloud-multi-operator-v${version}.yaml bin/hypercloud-multi-operator-crd-v${version}.yaml"
 
             sh "sudo mkdir -p build/manifests/v${version}"
-            sh "sudo mkdir -p $homeDir/convert"
+	    sh "sudo mkdir -p ${homeDir}/convert"
             sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
             sh "sudo cp bin/hypercloud-multi-operator-v${version}.yaml ${homeDir}/"
             sh "sudo cp ./config/capi-template/capi-aws-template.yaml build/manifests/v${version}/capi-aws-template-v${version}.yaml"
@@ -586,8 +586,8 @@ void MakeKeyMappingFile() {
         }
 
         stage('schema-converter (sed file)') {
-            sh "sudo sed -i 's#C:\\\\\\\\cicd-crd\\\\\\\\#'$homeDir'/convert/#g' ./schema-converter/src/main/java/com/tmax/ck/main/Main.java"
-            sh "sudo sed -i 's#String outputDir = rootDir + System.currentTimeMillis() + \"\\\\\\\\\"#String outputDir = \"'$homeDir'/convert/result/\"#g' ./schema-converter/src/main/java/com/tmax/ck/main/Main.java"
+	    sh "sudo sed -i 's#C:\\\\\\\\cicd-crd\\\\\\\\#'${homeDir}'/convert/#g' ./schema-converter/src/main/java/com/tmax/ck/main/Main.java"
+            sh "sudo sed -i 's#String outputDir = rootDir + System.currentTimeMillis() + \"\\\\\\\\\"#String outputDir = \"'${homeDir}'/convert/result/\"#g' ./schema-converter/src/main/java/com/tmax/ck/main/Main.java"
 
             if ("${params.translateCRD}" == 'true') {
                 sh "sudo sed -i 's#autoTranslation = false#autoTranslation = true#g' ./schema-converter/src/main/java/com/tmax/ck/main/Main.java"
