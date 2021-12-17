@@ -589,7 +589,7 @@ void TestDisSingleOperator() {
             if(!fileExists("${homeDir}/convert/")){
                 sh "mkdir $homeDir/convert"
             }
-            sh "sudo cp bin/hypercloud-single-operator-crd-v${version}.yaml ${homeDir}/convert/" // 폴더가 없으면 만들어주나?
+            sh "sudo cp bin/hypercloud-single-operator-crd-v${version}.yaml ${homeDir}/convert/"
             sh "sudo cp bin/hypercloud-single-operator-v${version}.yaml ${homeDir}/"
         }
     }
@@ -602,7 +602,7 @@ void MakeKeyMappingFile() {
     def buildDir = "${homeDir}/schema-converter"
     def userName = "aldlfkahs"
     def userEmail = "seungwon_lee@tmax.co.kr"
-    //def GOOGLE_APPLICATION_CREDENTIALS = "/var/lib/jenkins/workspace/hypercloud5-integrated/credential/gcp-credential.json"
+    def GOOGLE_APPLICATION_CREDENTIALS = "/var/lib/jenkins/secrets/gcp-credential.json"
 
     dir(buildDir){
         stage('schema-converter (git pull)') {
@@ -632,7 +632,7 @@ void MakeKeyMappingFile() {
 
         stage('schema-converter (convert CRD yaml)') {
             dir("${buildDir}/schema-converter"){
-                sh "export GOOGLE_APPLICATION_CREDENTIALS=/var/lib/jenkins/workspace/hypercloud5-integrated/credential/gcp-credential.json"
+//                sh "export GOOGLE_APPLICATION_CREDENTIALS=/var/lib/jenkins/secrets/gcp-credential.json"
                 sh "chmod +x gradlew"
                 sh "./gradlew"
                 sh "./gradlew run"
