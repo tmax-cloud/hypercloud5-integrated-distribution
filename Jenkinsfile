@@ -217,7 +217,7 @@ void DisSingleOperator() {
             sh "sudo tar -zvcf bin/hypercloud-single-operator-manifests-v${version}.tar.gz bin/hypercloud-single-operator-v${version}.yaml bin/hypercloud-single-operator-crd-v${version}.yaml"
 
             sh "sudo mkdir -p build/manifests/v${version}"
-	    sh "sudo mkdir -p ${homeDir}/convert"
+	    sh "sudo mkdir -p ${homeDir}/convert/result"
             sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
             sh "sudo cp bin/hypercloud-single-operator-v${version}.yaml ${homeDir}/"
             sh "sudo cp bin/hypercloud-single-operator-crd-v${version}.yaml ${homeDir}/convert/"
