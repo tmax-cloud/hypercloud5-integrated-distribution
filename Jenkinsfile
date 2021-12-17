@@ -561,7 +561,7 @@ void UploadCRD() {
 
 void MakeKeyMappingFile() {
     def gitHubBaseAddress = "github.com"
-    def gitAddress = "${gitHubBaseAddress}/tmax-cloud/schema-converter.git"
+    def gitAddress = "${gitHubBaseAddress}/sisilia91/schema-converter.git"
     def homeDir = "/var/lib/jenkins/workspace/hypercloud5-integrated"
     def buildDir = "${homeDir}/schema-converter"
     def userName = "aldlfkahs"
