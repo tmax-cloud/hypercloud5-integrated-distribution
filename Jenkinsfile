@@ -10,6 +10,7 @@ node {
             DisMultiOperator()
             DisMultiAgent()
             DisTFCOperator()
+            MakeKeyMappingFile()
             UploadCRD()
             SendMail()
             break
@@ -18,10 +19,12 @@ node {
             break
         case 'only-single-operator':
             DisSingleOperator()
+            MakeKeyMappingFile()
             UploadCRD()
             break
         case 'only-multi-operator':
             DisMultiOperator()
+            MakeKeyMappingFile()
             UploadCRD()
             break
         case 'only-multi-agent':
@@ -29,11 +32,6 @@ node {
             break
         case 'only-tfc-operator':
             DisTFCOperator()
-            break
-        case 'test':
-            TestDisSingleOperator()
-            MakeKeyMappingFile()
-            TestUploadCRD()
             break
         default:
             break
@@ -213,12 +211,16 @@ void DisSingleOperator() {
         stage('Single-operator (make manifests)') {
             sh "sed -i 's#{imageTag}#${imageTag}#' ./config/manager/kustomization.yaml"
             sh "sudo kubectl kustomize ./config/default/ > bin/hypercloud-single-operator-v${version}.yaml"
-            sh "sudo kubectl kustomize ./config/crd/ > bin/crd-v${version}.yaml"
-            sh "sudo tar -zvcf bin/hypercloud-single-operator-manifests-v${version}.tar.gz bin/hypercloud-single-operator-v${version}.yaml bin/crd-v${version}.yaml"
+            sh "sudo kubectl kustomize ./config/crd/ > bin/hypercloud-single-operator-crd-v${version}.yaml"
+            sh "sudo sed -i 's#\$(CERTIFICATE_NAMESPACE)#hypercloud5-system#g' bin/hypercloud-single-operator*v${version}.yaml"
+            sh "sudo sed -i 's#\$(CERTIFICATE_NAME)#hypercloud-single-operator-serving-cert#g' bin/hypercloud-single-operator*v${version}.yaml"
+            sh "sudo tar -zvcf bin/hypercloud-single-operator-manifests-v${version}.tar.gz bin/hypercloud-single-operator-v${version}.yaml bin/hypercloud-single-operator-crd-v${version}.yaml"
 
             sh "sudo mkdir -p build/manifests/v${version}"
+            sh "sudo mkdir -p $homeDir/convert"
             sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
             sh "sudo cp bin/hypercloud-single-operator-v${version}.yaml ${homeDir}/"
+            sh "sudo cp bin/hypercloud-single-operator-crd-v${version}.yaml ${homeDir}/convert/"
         }
 
         stage('Single-operator (image build & push)'){
@@ -290,15 +292,19 @@ void DisMultiOperator() {
         stage('Multi-operator (make manifests)') {
             sh "sed -i 's#{imageTag}#${imageTag}#' ./config/manager/kustomization.yaml"
             sh "sudo kubectl kustomize ./config/default/ > bin/hypercloud-multi-operator-v${version}.yaml"
-            sh "sudo kubectl kustomize ./config/crd/ > bin/crd-v${version}.yaml"
-            sh "sudo tar -zvcf bin/hypercloud-multi-operator-manifests-v${version}.tar.gz bin/hypercloud-multi-operator-v${version}.yaml bin/crd-v${version}.yaml"
+            sh "sudo kubectl kustomize ./config/crd/ > bin/hypercloud-multi-operator-crd-v${version}.yaml"
+            sh "sudo sed -i 's#\$(CERTIFICATE_NAMESPACE)#hypercloud5-system#g' bin/hypercloud-multi-operator*v${version}.yaml"
+            sh "sudo sed -i 's#\$(CERTIFICATE_NAME)#hypercloud-multi-operator-serving-cert#g' bin/hypercloud-multi-operator*v${version}.yaml"
+            sh "sudo tar -zvcf bin/hypercloud-multi-operator-manifests-v${version}.tar.gz bin/hypercloud-multi-operator-v${version}.yaml bin/hypercloud-multi-operator-crd-v${version}.yaml"
 
             sh "sudo mkdir -p build/manifests/v${version}"
+            sh "sudo mkdir -p $homeDir/convert"
             sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
             sh "sudo cp bin/hypercloud-multi-operator-v${version}.yaml ${homeDir}/"
             sh "sudo cp ./config/capi-template/capi-aws-template.yaml build/manifests/v${version}/capi-aws-template-v${version}.yaml"
             sh "sudo cp ./config/capi-template/capi-vsphere-template.yaml build/manifests/v${version}/capi-vsphere-template-v${version}.yaml"
-            sh "sudo cp build/manifests/v${version}/capi-*-template-v${version}.yaml ${homeDir}/"            
+            sh "sudo cp build/manifests/v${version}/capi-*-template-v${version}.yaml ${homeDir}/"
+            sh "sudo cp bin/hypercloud-multi-operator-crd-v${version}.yaml ${homeDir}/convert/"           
         }
 
         stage('Multi-operator (image build & push)'){
@@ -516,7 +522,16 @@ void UploadCRD() {
                 sh "cp ${homeDir}/capi-vsphere-template-v${version}.yaml hypercloud-multi-operator/"
             }
 
-            sh "rm -f ${homeDir}/hypercloud-single-operator-v${version}.yaml ${homeDir}/hypercloud-multi-operator-v${version}.yaml"
+            if (fileExists("${homeDir}/convert/result/hypercloud-single-operator-crd-v${version}.yaml")){
+                sh "cp ${homeDir}/convert/result/hypercloud-single-operator-crd-v${version}.yaml hypercloud-single-operator/crd/"
+            }
+            if (fileExists("${homeDir}/convert/result/hypercloud-multi-operator-crd-v${version}.yaml")){
+                sh "cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-v${version}.yaml hypercloud-multi-operator/crd/"
+            }
+
+            sh "sudo rm -f ${homeDir}/hypercloud-single-operator-v${version}.yaml ${homeDir}/hypercloud-multi-operator-v${version}.yaml"
+            sh "sudo rm -f ${homeDir}/convert/*.yaml"
+            sh "sudo rm -f ${homeDir}/convert/result/*.yaml"
         }
 
         stage('Install-hypercloud (git push)'){
@@ -540,61 +555,6 @@ void UploadCRD() {
     }   
 }
 
-void TestDisSingleOperator() {
-    def gitHubBaseAddress = "github.com"
-    def gitAddress = "${gitHubBaseAddress}/tmax-cloud/hypercloud-single-operator.git"
-    def homeDir = "/var/lib/jenkins/workspace/hypercloud5-integrated"
-    def buildDir = "${homeDir}/single-operator"
-    def scriptHome = "${buildDir}/scripts"
-    def version = "${params.majorVersion}.${params.minorVersion}.${params.tinyVersion}.${params.hotfixVersion}"
-    def imageTag = "b${version}"
-    def userName = "aldlfkahs"
-    def userEmail = "seungwon_lee@tmax.co.kr"
-
-
-    dir(buildDir){
-        stage('Single-operator (git pull)') {
-            git branch: "${params.singleOperatorBranch}",
-            credentialsId: '${userName}',
-            url: "http://${gitAddress}"
-
-            // git pull
-            sh "git checkout ${params.singleOperatorBranch}"
-            sh "git config --global user.name ${userName}"
-            sh "git config --global user.email ${userEmail}"
-            sh "git config --global credential.helper store"
-
-            sh "git fetch --all"
-            sh "git reset --hard origin/${params.singleOperatorBranch}"
-            sh "git pull origin ${params.singleOperatorBranch}"
-
-            sh '''#!/bin/bash
-                export PATH=$PATH:/usr/local/go/bin
-                export GO111MODULE=on
-                go build -o bin/manager main.go
-                '''
-        }
-
-        stage('Single-operator (make manifests)') {
-            sh "sed -i 's#{imageTag}#${imageTag}#' ./config/manager/kustomization.yaml"
-            sh "sudo kubectl kustomize ./config/default/ > bin/hypercloud-single-operator-v${version}.yaml"
-            sh "sudo kubectl kustomize ./config/crd/ > bin/hypercloud-single-operator-crd-v${version}.yaml"
-            sh "sudo sed -i 's#\$(CERTIFICATE_NAMESPACE)#hypercloud5-system#g' bin/hypercloud-single-operator*v${version}.yaml"
-            sh "sudo sed -i 's#\$(CERTIFICATE_NAME)#hypercloud-single-operator-serving-cert#g' bin/hypercloud-single-operator*v${version}.yaml"
-            sh "sudo tar -zvcf bin/hypercloud-single-operator-manifests-v${version}.tar.gz bin/hypercloud-single-operator-v${version}.yaml bin/hypercloud-single-operator*v${version}.yaml"
-
-            sh "sudo mkdir -p build/manifests/v${version}"
-            sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
-            // make directory if not exists
-            if(!fileExists("${homeDir}/convert/")){
-                sh "mkdir $homeDir/convert"
-            }
-            sh "sudo cp bin/hypercloud-single-operator-crd-v${version}.yaml ${homeDir}/convert/"
-            sh "sudo cp bin/hypercloud-single-operator-v${version}.yaml ${homeDir}/"
-        }
-    }
-}
-
 void MakeKeyMappingFile() {
     def gitHubBaseAddress = "github.com"
     def gitAddress = "${gitHubBaseAddress}/tmax-cloud/schema-converter.git"
@@ -606,19 +566,19 @@ void MakeKeyMappingFile() {
 
     dir(buildDir){
         stage('schema-converter (git pull)') {
-            git branch: "main",
+            git branch: "${params.schemaConverterBranch}",
             credentialsId: '${userName}',
             url: "http://${gitAddress}"
 
             // git pull
-            sh "git checkout main"
+            sh "git checkout ${params.schemaConverterBranch}"
             sh "git config --global user.name ${userName}"
             sh "git config --global user.email ${userEmail}"
             sh "git config --global credential.helper store"
 
             sh "git fetch --all"
-            sh "git reset --hard origin/main"
-            sh "git pull origin main"
+            sh "git reset --hard origin/${params.schemaConverterBranch}"
+            sh "git pull origin ${params.schemaConverterBranch}"
         }
 
         stage('schema-converter (sed file)') {
@@ -632,86 +592,10 @@ void MakeKeyMappingFile() {
 
         stage('schema-converter (convert CRD yaml)') {
             dir("${buildDir}/schema-converter"){
-//                sh "export GOOGLE_APPLICATION_CREDENTIALS=/var/lib/jenkins/secrets/gcp-credential.json"
                 sh "chmod +x gradlew"
                 sh "./gradlew"
                 sh "./gradlew run"
             }
         }
     }
-}
-
-void TestUploadCRD() {
-    def gitHubBaseAddress = "github.com"
-    def gitAddress = "${gitHubBaseAddress}/tmax-cloud/install-hypercloud.git"
-    def homeDir = "/var/lib/jenkins/workspace/hypercloud5-integrated"
-    def buildDir = "${homeDir}/install-hypercloud"
-    def version = "${params.majorVersion}.${params.minorVersion}.${params.tinyVersion}.${params.hotfixVersion}"
-    def userName = "aldlfkahs"
-    def userEmail = "seungwon_lee@tmax.co.kr"
-
-
-    dir(buildDir){
-        stage('Install-hypercloud (git pull)') {
-            git branch: "jenkins-test", // 브랜치 바꿔야함
-            credentialsId: '${userName}',
-            url: "http://${gitAddress}"
-
-            // git pull
-            sh "git checkout jenkins-test"
-            sh "git config --global user.name ${userName}"
-            sh "git config --global user.email ${userEmail}"
-            sh "git config --global credential.helper store"
-
-            sh "git fetch --all"
-            sh "git reset --hard origin/jenkins-test"
-            sh "git pull origin jenkins-test"
-        }
-
-        stage('Install-hypercloud (upload CRD yaml)'){
-
-            if (fileExists("${homeDir}/hypercloud-single-operator-v${version}.yaml")){
-                sh "cp ${homeDir}/hypercloud-single-operator-v${version}.yaml hypercloud-single-operator/"
-            }
-            if (fileExists("${homeDir}/hypercloud-multi-operator-v${version}.yaml")){
-                sh "cp ${homeDir}/hypercloud-multi-operator-v${version}.yaml hypercloud-multi-operator/"
-            }
-            if (fileExists("${homeDir}/capi-aws-template-v${version}.yaml")){
-                sh "cp ${homeDir}/capi-aws-template-v${version}.yaml hypercloud-multi-operator/"
-            }
-            if (fileExists("${homeDir}/capi-vsphere-template-v${version}.yaml")){
-                sh "cp ${homeDir}/capi-vsphere-template-v${version}.yaml hypercloud-multi-operator/"
-            }
-
-            if (fileExists("${homeDir}/convert/result/hypercloud-single-operator-crd-v${version}.yaml")){
-                sh "cp ${homeDir}/convert/result/hypercloud-single-operator-crd-v${version}.yaml hypercloud-single-operator/crd/"
-            }
-            if (fileExists("${homeDir}/convert/result/hypercloud-multi-operator-crd-v${version}.yaml")){
-                sh "cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-v${version}.yaml hypercloud-multi-operator/crd/"
-            }
-
-            sh "sudo rm -f ${homeDir}/hypercloud-single-operator-v${version}.yaml ${homeDir}/hypercloud-multi-operator-v${version}.yaml"
-            sh "sudo rm -f ${homeDir}/convert/*.yaml"
-            sh "sudo rm -f ${homeDir}/convert/result/*.yaml"
-        }
-
-        stage('Install-hypercloud (git push)'){
-            sh "git checkout jenkins-test"
-
-            sh "git config --global user.name ${userName}"
-            sh "git config --global user.email ${userEmail}"
-            sh "git config --global credential.helper store"
-            sh "git add -A"
-
-            def commitMsg = "[Distribution] Upload Operator CRD yaml - v${version}"
-            sh (script: "git commit -m \"${commitMsg}\" || true")            
-
-            sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/install-hypercloud.git"
-            sh "sudo git push -u origin +jenkins-test"
-
-            sh "git fetch --all"
-            sh "git reset --hard origin/jenkins-test"
-            sh "git pull origin jenkins-test"
-        }
-    }   
 }
