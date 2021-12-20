@@ -527,10 +527,10 @@ void UploadCRD() {
             }
 
             if (fileExists("${homeDir}/convert/result/hypercloud-single-operator-crd-v${version}.yaml")){
-                sh "cp ${homeDir}/convert/result/hypercloud-single-operator-crd-v${version}.yaml hypercloud-single-operator/crd/"
+                sh "cp ${homeDir}/convert/result/hypercloud-single-operator-crd-v${version}.yaml hypercloud-single-operator/key-mapping/"
             }
             if (fileExists("${homeDir}/convert/result/hypercloud-multi-operator-crd-v${version}.yaml")){
-                sh "cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-v${version}.yaml hypercloud-multi-operator/crd/"
+                sh "cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-v${version}.yaml hypercloud-multi-operator/key-mapping/"
             }
 
             sh "sudo rm -f ${homeDir}/hypercloud-single-operator-v${version}.yaml ${homeDir}/hypercloud-multi-operator-v${version}.yaml"
