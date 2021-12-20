@@ -230,7 +230,7 @@ void DisSingleOperator() {
             sh "sudo docker rmi tmaxcloudck/hypercloud-single-operator:${imageTag}"
         }
 	
-	    
+	/*
         stage('Single-operator (make change log)'){
             preVersion = sh(script:"sudo git describe --tags --abbrev=0", returnStdout: true)
             preVersion = preVersion.substring(1)
@@ -254,7 +254,7 @@ void DisSingleOperator() {
             sh "git reset --hard origin/${params.singleOperatorBranch}"
             sh "git pull origin ${params.singleOperatorBranch}"
         }
-	
+	*/
     }
 }
 
@@ -561,7 +561,7 @@ void UploadCRD() {
 
 void MakeKeyMappingFile() {
     def gitHubBaseAddress = "github.com"
-    def gitAddress = "${gitHubBaseAddress}/tmax-cloud/schema-converter.git"
+    def gitAddress = "${gitHubBaseAddress}/sisilia91/schema-converter.git"
     def homeDir = "/var/lib/jenkins/workspace/hypercloud5-integrated"
     def buildDir = "${homeDir}/schema-converter"
     def userName = "aldlfkahs"
