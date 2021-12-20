@@ -217,18 +217,19 @@ void DisSingleOperator() {
             sh "sudo tar -zvcf bin/hypercloud-single-operator-manifests-v${version}.tar.gz bin/hypercloud-single-operator-v${version}.yaml bin/hypercloud-single-operator-crd-v${version}.yaml"
 
             sh "sudo mkdir -p build/manifests/v${version}"
-	    sh "sudo mkdir -p ${homeDir}/convert/result"
+            sh "sudo mkdir -p ${homeDir}/convert/result"
             sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
             sh "sudo cp bin/hypercloud-single-operator-v${version}.yaml ${homeDir}/"
             sh "sudo cp bin/hypercloud-single-operator-crd-v${version}.yaml ${homeDir}/convert/"
         }
 
-	
+	/*
         stage('Single-operator (image build & push)'){
             sh "sudo docker build --tag tmaxcloudck/hypercloud-single-operator:${imageTag} ."
             sh "sudo docker push tmaxcloudck/hypercloud-single-operator:${imageTag}"
             sh "sudo docker rmi tmaxcloudck/hypercloud-single-operator:${imageTag}"
         }
+    */
 	
 	/*
         stage('Single-operator (make change log)'){
