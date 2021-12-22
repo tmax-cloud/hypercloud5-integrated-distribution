@@ -599,7 +599,7 @@ void MakeKeyMappingFile() {
        stage('schema-converter (convert CRD yaml)') {
             dir("${buildDir}/schema-converter"){
                 sh "export GOOGLE_APPLICATION_CREDENTIALS=/var/lib/jenkins/secrets/gcp-credential.json"
-                sh "echo $GOOGLE_APPLICATION_CREDENTIALS"
+                sh "env | grep GOOGLE"
                 sh "chmod +x gradlew"
                 sh "./gradlew run --args=\"root ${homeDir}/convert output result translate ${params.translateCRD}\""
             }
