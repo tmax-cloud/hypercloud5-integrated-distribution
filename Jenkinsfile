@@ -223,7 +223,7 @@ void DisSingleOperator() {
             sh "sudo cp bin/hypercloud-single-operator-crd-v${version}.yaml ${homeDir}/convert/"
         }
 
-	
+	/*
         stage('Single-operator (image build & push)'){
             sh "sudo docker build --tag tmaxcloudck/hypercloud-single-operator:${imageTag} ."
             sh "sudo docker push tmaxcloudck/hypercloud-single-operator:${imageTag}"
@@ -254,7 +254,7 @@ void DisSingleOperator() {
             sh "git reset --hard origin/${params.singleOperatorBranch}"
             sh "git pull origin ${params.singleOperatorBranch}"
         }
-	
+	*/
     }
 }
 
