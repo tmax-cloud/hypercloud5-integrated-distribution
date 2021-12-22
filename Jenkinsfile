@@ -599,7 +599,7 @@ void MakeKeyMappingFile() {
        stage('schema-converter (convert CRD yaml)') {
             dir("${buildDir}/schema-converter"){
                 sh "chmod +x gradlew"
-                sh "sudo ./gradlew run --args=\"root ${homeDir}/convert output result translate ${params.translateCRD}\""
+                sh "./gradlew run --args=\"root ${homeDir}/convert output result translate ${params.translateCRD}\""
             }
         }
     }
