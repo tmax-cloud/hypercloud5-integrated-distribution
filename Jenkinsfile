@@ -533,9 +533,19 @@ void UploadCRD() {
                 sh "cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-v${version}.yaml hypercloud-multi-operator/key-mapping/"
             }
 
+            if ("${params.translateCRD}" == 'true' && fileExists("${homeDir}/convert/result/output.xls")){
+                if (distributionType == "only-single-operator"){
+                    sh "cp ${homeDir}/convert/result/output.xls i18n/hypercloud-single-operator-v${version}.xls"
+                } else if (distributionType == "only-multi-operator"){
+                    sh "cp ${homeDir}/convert/result/output.xls i18n/hypercloud-multi-operator-v${version}.xls"
+                } else{ // integrated
+                    sh "cp ${homeDir}/convert/result/output.xls i18n/integrated-v${version}.xls"
+                }
+            }
+
             sh "sudo rm -f ${homeDir}/hypercloud-single-operator-v${version}.yaml ${homeDir}/hypercloud-multi-operator-v${version}.yaml"
             sh "sudo rm -f ${homeDir}/convert/*.yaml"
-            sh "sudo rm -f ${homeDir}/convert/result/*.yaml"
+            sh "sudo rm -f ${homeDir}/convert/result/*"
         }
 
         stage('Install-hypercloud (git push)'){
