@@ -534,13 +534,14 @@ void UploadCRD() {
             }
 
             if ("${params.translateCRD}" == 'true' && fileExists("${homeDir}/convert/result/output.xls")){
-                if (distributionType == "only-single-operator"){
+                if (distributionType == 'only-single-operator'){
                     sh "cp ${homeDir}/convert/result/output.xls i18n/hypercloud-single-operator-v${version}.xls"
-                } else if (distributionType == "only-multi-operator"){
+                } else if (distributionType == 'only-multi-operator'){
                     sh "cp ${homeDir}/convert/result/output.xls i18n/hypercloud-multi-operator-v${version}.xls"
                 } else{ // integrated
                     sh "cp ${homeDir}/convert/result/output.xls i18n/integrated-v${version}.xls"
                 }
+                sh "echo hi"
             }
 
             sh "sudo rm -f ${homeDir}/hypercloud-single-operator-v${version}.yaml ${homeDir}/hypercloud-multi-operator-v${version}.yaml"
@@ -597,7 +598,6 @@ void MakeKeyMappingFile() {
 
        stage('schema-converter (convert CRD yaml)') {
             dir("${buildDir}/schema-converter"){
-                sh "export GOOGLE_APPLICATION_CREDENTIALS=/var/lib/jenkins/secrets/gcp-credential.json"
                 sh "chmod +x gradlew"
                 sh "sudo ./gradlew run --args=\"root ${homeDir}/convert output result translate ${params.translateCRD}\""
             }
