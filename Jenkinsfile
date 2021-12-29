@@ -33,6 +33,9 @@ node {
         case 'only-tfc-operator':
             DisTFCOperator()
             break
+        case 'only-cloud-credential-operator':
+            DisCCOperator()
+            break
         default:
             break
 	}
@@ -481,6 +484,81 @@ void DisTFCOperator() {
             sh "git fetch --all"
             sh "git reset --hard origin/${params.tfcOperatorBranch}"
             sh "git pull origin ${params.tfcOperatorBranch}"
+        }
+    }
+}
+
+void DisCCOperator() {
+    def gitHubBaseAddress = "github.com"
+    def gitAddress = "${gitHubBaseAddress}/tmax-cloud/cloud-credential-operator.git"
+    def homeDir = "/var/lib/jenkins/workspace/hypercloud5-integrated"
+    def buildDir = "${homeDir}/cloud-credential-operator"
+    def scriptHome = "${buildDir}/scripts"
+    def version = "${params.majorVersion}.${params.minorVersion}.${params.tinyVersion}.${params.hotfixVersion}"
+    def imageTag = "b${version}"
+    def userName = "aldlfkahs"
+    def userEmail = "seungwon_lee@tmax.co.kr"
+
+
+    dir(buildDir){
+        stage('cc-operator (git pull)') {
+            git branch: "${params.ccOperatorBranch}",
+            credentialsId: '${userName}',
+            url: "http://${gitAddress}"
+
+            // git pull
+            sh "git checkout ${params.ccOperatorBranch}"
+            sh "git config --global user.name ${userName}"
+            sh "git config --global user.email ${userEmail}"
+            sh "git config --global credential.helper store"
+
+            sh "git fetch --all"
+            sh "git reset --hard origin/${params.ccOperatorBranch}"
+            sh "git pull origin ${params.ccOperatorBranch}"
+
+            sh '''#!/bin/bash
+                export PATH=$PATH:/usr/local/go/bin
+                export GO111MODULE=on
+                go build -o bin/manager main.go
+                '''
+        }
+
+        stage('cc-operator (make manifests)') {
+            sh "sed -i 's#{imageTag}#${imageTag}#' ./config/manager/kustomization.yaml"
+            sh "sudo kubectl kustomize ./config/default/ > bin/cloud-credential-operator-v${version}.yaml"
+            sh "sudo kubectl kustomize ./config/crd/ > bin/cloud-credential-operator-crd-v${version}.yaml"
+
+            sh "sudo mkdir -p build/manifests/v${version}"
+            sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
+        }
+
+        stage('cc-operator (image build & push)'){
+            sh "sudo docker build --tag tmaxcloudck/cloud-credential-operator:${imageTag} ."
+            sh "sudo docker push tmaxcloudck/cloud-credential-operator:${imageTag}"
+            sh "sudo docker rmi tmaxcloudck/cloud-credential-operator:${imageTag}"
+        }
+
+        stage('cc-operator (make change log)'){
+            preVersion = sh(script:"sudo git describe --tags --abbrev=0", returnStdout: true)
+            preVersion = preVersion.substring(1)
+            echo "preVersion of cloud-credential-operator : ${preVersion}"
+            sh "sudo sh ${scriptHome}/make-changelog.sh ${version} ${preVersion}"
+        }
+
+        stage('cc-operator (git push)'){
+            sh "git checkout ${params.ccOperatorBranch}"
+            sh "git add -A"
+            sh "git reset ./config/manager/kustomization.yaml"
+            def commitMsg = "[Distribution] Release commit for cloud-credential-operator v${version}"
+            sh (script: "git commit -m \"${commitMsg}\" || true")
+            sh "git tag v${version}"
+            sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/cloud-credential-operator.git"
+            sh "sudo git push -u origin +${params.ccOperatorBranch}"
+            sh "sudo git push origin v${version}"
+
+            sh "git fetch --all"
+            sh "git reset --hard origin/${params.ccOperatorBranch}"
+            sh "git pull origin ${params.ccOperatorBranch}"
         }
     }
 }
