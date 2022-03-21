@@ -270,8 +270,8 @@ void DisMultiOperator() {
     def version = "${params.majorVersion}.${params.minorVersion}.${params.tinyVersion}.${params.hotfixVersion}"
     def pkgVersion = "v0.${params.majorVersion}.${params.minorVersion}-b${params.tinyVersion}f${params.hotfixVersion}"
     def imageTag = "b${version}"
-    def userName = "dnxorjs1"
-    def userEmail = "taegeon_woo@tmax.co.kr"
+    def userName = "SoohwanKim"
+    def userEmail = "soowh91@gmail.com"
 
     dir(buildDir){
         stage('Multi-operator (git pull)') {
