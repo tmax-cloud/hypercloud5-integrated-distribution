@@ -724,15 +724,25 @@ void UploadCRD() {
 					&& fileExists("${homeDir}/convertV1beta1/result/hypercloud-multi-operator-crd-translation-v${version}.xls")){
 					sh ("cp ${homeDir}/convertV1beta1/result/hypercloud-multi-operator-crd-translation-v${version}.xls \
 						hypercloud-multi-operator/key-mapping/")
-				} else if (distributionType == 'essential'
-					&& fileExists("${homeDir}/convertV1beta1/result/hypercloud-single-operator-crd-translation-v${version}.xls")
-					&& fileExists("${homeDir}/convertV1beta1/result/hypercloud-multi-operator-crd-translation-v${version}.xls")){
-					sh ("cp ${homeDir}/convertV1beta1/result/hypercloud-single-operator-crd-translation-v${version}.xls \
-						hypercloud-single-operator/key-mapping/")
-					sh ("cp ${homeDir}/convertV1beta1/result/hypercloud-multi-operator-crd-translation-v${version}.xls \
-						hypercloud-multi-operator/key-mapping/")
+				} else if (distributionType == 'essential'){
+					if (fileExists("${homeDir}/convertV1beta1/result/hypercloud-single-operator-crd-translation-v${version}.xls")){
+						sh ("cp ${homeDir}/convertV1beta1/result/hypercloud-single-operator-crd-translation-v${version}.xls \
+							hypercloud-single-operator/key-mapping/")
+					}
+					if (fileExists("${homeDir}/convertV1beta1/result/hypercloud-multi-operator-crd-translation-v${version}.xls")){
+						sh ("cp ${homeDir}/convertV1beta1/result/hypercloud-multi-operator-crd-translation-v${version}.xls \
+							hypercloud-multi-operator/key-mapping/")
+					}
 				} else { // integrated
-					sh "cp ${homeDir}/convert/result/output.xls translation/translation-v${version}.xls"
+					if (fileExists("${homeDir}/convert/result/hypercloud-single-operator-crd-translation-v${version}.xls")){
+						sh ("cp ${homeDir}/convert/result/hypercloud-single-operator-crd-translation-v${version}.xls \
+							hypercloud-single-operator/key-mapping/")
+					}
+					if (fileExists("${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls")){					
+						sh ("cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls \
+							hypercloud-multi-operator/key-mapping/")
+					}
+					// tfc-operator, cc-operator 추가 필요할수도 있음
 				}
 			}
 		}
@@ -797,15 +807,25 @@ void UploadCRD() {
 					&& fileExists("${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls")){
 					sh ("cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls \
 						hypercloud-multi-operator/key-mapping/")
-				} else if (distributionType == 'essential'
-					&& fileExists("${homeDir}/convert/result/hypercloud-single-operator-crd-translation-v${version}.xls")
-					&& fileExists("${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls")){
-					sh ("cp ${homeDir}/convert/result/hypercloud-single-operator-crd-translation-v${version}.xls \
-						hypercloud-single-operator/key-mapping/")
-					sh ("cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls \
-						hypercloud-multi-operator/key-mapping/")
+				} else if (distributionType == 'essential'){
+					if (fileExists("${homeDir}/convert/result/hypercloud-single-operator-crd-translation-v${version}.xls")){
+						sh ("cp ${homeDir}/convert/result/hypercloud-single-operator-crd-translation-v${version}.xls \
+							hypercloud-single-operator/key-mapping/")
+					}
+					if (fileExists("${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls")){					
+						sh ("cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls \
+							hypercloud-multi-operator/key-mapping/")
+					}
 				} else { // integrated
-					sh "cp ${homeDir}/convert/result/output.xls translation/translation-v${version}.xls"
+					if (fileExists("${homeDir}/convert/result/hypercloud-single-operator-crd-translation-v${version}.xls")){
+						sh ("cp ${homeDir}/convert/result/hypercloud-single-operator-crd-translation-v${version}.xls \
+							hypercloud-single-operator/key-mapping/")
+					}
+					if (fileExists("${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls")){					
+						sh ("cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls \
+							hypercloud-multi-operator/key-mapping/")
+					}
+					// tfc-operator, cc-operator 추가 필요할수도 있음
 				}
 			}
 		}
