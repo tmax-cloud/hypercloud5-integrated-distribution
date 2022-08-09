@@ -14,6 +14,14 @@ node {
 			UploadCRD()
 			SendMail()
 			break
+		case 'essential':
+			DisApiServer()
+			DisSingleOperator()
+			DisMultiOperator()
+			MakeKeyMappingFile()
+			UploadCRD()
+			SendEssentialMail()
+			break
 		case 'only-api-server':
 			DisApiServer()
 			break
@@ -105,7 +113,57 @@ void SendMail(){
 				===
 
 				""",
-			 to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;kyunghoon_min@tmax.co.kr;byongjohn_han@tmax.co.kr;",
+			 to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;byongjohn_han@tmax.co.kr;",
+			 from: "seungwon_lee@tmax.co.kr"
+		)
+	}
+}
+
+void SendEssentialMail() {
+	stage('Integrated (send email)') {
+		def version = "${params.majorVersion}.${params.minorVersion}.${params.tinyVersion}.${params.hotfixVersion}"
+		def dateFormat = new SimpleDateFormat("yyyy.MM.dd E")
+		def date = new Date()
+		def today = dateFormat.format(date)
+
+		emailext (
+			 subject: "Hypercloud5-Integrated-Distribution v${version}",
+			 body:
+				"""
+				안녕하세요. ck1-3팀 이승원입니다.
+				hypercloud5(api-server, single-operator, multi-operator) 통합 배포 안내 메일입니다.
+
+				===
+
+				${today}
+				통합 Install Guide : https://github.com/tmax-cloud/install-hypercloud
+
+				API-server 배포
+				* HyperCloud5 api server
+				* version: b${version}
+				* image: docker.io/tmaxcloudck/hypercloud-api-server:b${version}
+				* GitHub : https://github.com/tmax-cloud/hypercloud-api-server
+				* ChangeLog : https://github.com/tmax-cloud/hypercloud-api-server/blob/master/CHANGELOG.md
+
+				Single-operator 배포
+				* HyperCloud5 single operator
+				* version: b${version}
+				* image: docker.io/tmaxcloudck/hypercloud-single-operator:b${version}
+				* GitHub : https://github.com/tmax-cloud/hypercloud-single-operator
+				* ChangeLog : https://github.com/tmax-cloud/hypercloud-single-operator/blob/main/CHANGELOG.md
+				* CRD : https://github.com/tmax-cloud/hypercloud-single-operator/tree/main/build/manifests/v${version}
+
+				Multi-operator 배포
+				* HyperCloud5 multi operator
+				* version: b${version}
+				* image: docker.io/tmaxcloudck/hypercloud-multi-operator:b${version}
+				* GitHub : https://github.com/tmax-cloud/hypercloud-multi-operator
+				* ChangeLog : https://github.com/tmax-cloud/hypercloud-multi-operator/blob/master/CHANGELOG.md
+				* CRD : https://github.com/tmax-cloud/hypercloud-multi-operator/tree/master/build/manifests/v${version}
+				===
+
+				""",
+			 to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;byongjohn_han@tmax.co.kr;",
 			 from: "seungwon_lee@tmax.co.kr"
 		)
 	}
@@ -141,7 +199,7 @@ void DisApiServer() {
 		}
 
 		stage('Api-server (image build & push)'){
-		   sh "sudo docker build --tag tmaxcloudck/hypercloud-api-server:${imageTag} ."
+			sh "sudo docker build --tag tmaxcloudck/hypercloud-api-server:${imageTag} ."
 			sh "sudo docker push tmaxcloudck/hypercloud-api-server:${imageTag}"
 			sh "sudo docker rmi tmaxcloudck/hypercloud-api-server:${imageTag}"
 		}
@@ -203,12 +261,6 @@ void DisSingleOperator() {
 			sh "git fetch --all"
 			sh "git reset --hard origin/${params.singleOperatorBranch}"
 			sh "git pull origin ${params.singleOperatorBranch}"
-
-			// sh '''#!/bin/bash
-			//     export PATH=$PATH:/usr/local/go/bin
-			//     export GO111MODULE=on
-			//     go build -o bin/manager main.go
-			//     '''
 		}
 
 		stage('Single-operator (pre-stage for make manifests)') {
@@ -231,7 +283,8 @@ void DisSingleOperator() {
 
 			// copy v1beta1 crd files to build dir and translation dir
 			sh "cp bin/hypercloud-single-operator-crd-v${version}-v1beta1.yaml build/manifests/v${version}/"
-			sh "cp bin/hypercloud-single-operator-crd-v${version}-v1beta1.yaml ${homeDir}/convertV1beta1/"
+			sh ("cp bin/hypercloud-single-operator-crd-v${version}-v1beta1.yaml \
+				${homeDir}/convertV1beta1/hypercloud-single-operator-crd-v${version}.yaml")
 		}
 
 		stage('Single-operator (kustomize crd v1)') {
@@ -255,21 +308,6 @@ void DisSingleOperator() {
 			sh "cp bin/*v${version}.yaml build/manifests/v${version}/"
 			sh "cp bin/hypercloud-single-operator-v${version}.yaml ${homeDir}/"
 		}
-
-//         stage('Single-operator (make manifests)') {
-//             sh "sed -i 's#{imageTag}#${imageTag}#' ./config/manager/kustomization.yaml"
-//             sh "sudo kubectl kustomize ./config/default/ > bin/hypercloud-single-operator-v${version}.yaml"
-//             sh "sudo kubectl kustomize ./config/crd/ > bin/hypercloud-single-operator-crd-v${version}.yaml"
-//             sh "sudo sed -i 's#\$(CERTIFICATE_NAMESPACE)#hypercloud5-system#g' bin/hypercloud-single-operator*v${version}.yaml"
-//             sh "sudo sed -i 's#\$(CERTIFICATE_NAME)#hypercloud-single-operator-serving-cert#g' bin/hypercloud-single-operator*v${version}.yaml"
-// //            sh "sudo tar -zvcf bin/hypercloud-single-operator-manifests-v${version}.tar.gz bin/hypercloud-single-operator-v${version}.yaml bin/hypercloud-single-operator-crd-v${version}.yaml"
-
-//             sh "sudo mkdir -p build/manifests/v${version}"
-//             sh "mkdir -p ${homeDir}/convert/result"
-//             sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
-//             sh "sudo cp bin/hypercloud-single-operator-v${version}.yaml ${homeDir}/"
-//             sh "sudo cp bin/hypercloud-single-operator-crd-v${version}.yaml ${homeDir}/convert/"
-//         }
 	
 		stage('Single-operator (image build & push)'){
 			sh "sudo docker build --tag tmaxcloudck/hypercloud-single-operator:${imageTag} ."
@@ -352,7 +390,8 @@ void DisMultiOperator() {
 
 			// copy v1beta1 crd files to build dir and translation dir
 			sh "cp bin/hypercloud-multi-operator-crd-v${version}-v1beta1.yaml build/manifests/v${version}/"
-			sh "cp bin/hypercloud-multi-operator-crd-v${version}-v1beta1.yaml ${homeDir}/convertV1beta1/"
+			sh ("cp bin/hypercloud-multi-operator-crd-v${version}-v1beta1.yaml \
+				${homeDir}/convertV1beta1/hypercloud-multi-operator-crd-v${version}.yaml")
 		}
 
 		stage('Multi-operator (kustomize crd v1)') {
@@ -667,30 +706,45 @@ void UploadCRD() {
 				sh "cp ${homeDir}/capi-vsphere-template-v${version}.yaml hypercloud-multi-operator/"
 			}
 
-			if (fileExists("${homeDir}/convertV1beta1/result/hypercloud-single-operator-crd-v${version}-v1beta1.yaml")){
-				sh ("cp ${homeDir}/convertV1beta1/result/hypercloud-single-operator-crd-v${version}-v1beta1.yaml \
-					hypercloud-single-operator/key-mapping/hypercloud-single-operator-crd-v${version}.yaml")
+			if (fileExists("${homeDir}/convertV1beta1/result/hypercloud-single-operator-crd-v${version}.yaml")){
+				sh ("cp ${homeDir}/convertV1beta1/result/hypercloud-single-operator-crd-v${version}.yaml \
+					hypercloud-single-operator/key-mapping/")
 			}
-			if (fileExists("${homeDir}/convertV1beta1/result/hypercloud-multi-operator-crd-v${version}-v1beta1.yaml")){
-				sh ("cp ${homeDir}/convertV1beta1/result/hypercloud-multi-operator-crd-v${version}-v1beta1.yaml \
-					hypercloud-multi-operator/key-mapping/hypercloud-multi-operator-crd-v${version}.yaml")
+			if (fileExists("${homeDir}/convertV1beta1/result/hypercloud-multi-operator-crd-v${version}.yaml")){
+				sh ("cp ${homeDir}/convertV1beta1/result/hypercloud-multi-operator-crd-v${version}.yaml \
+					hypercloud-multi-operator/key-mapping/")
 			}
 
-			if ("${params.translateCRD}" == 'true' && fileExists("${homeDir}/convertV1beta1/result/output.xls")){
-				if (distributionType == 'only-single-operator'){
-					sh ("cp ${homeDir}/convertV1beta1/result/output.xls \
-						hypercloud-single-operator/key-mapping/hypercloud-single-operator-crd-translation-v${version}.xls")
-				} else if (distributionType == 'only-multi-operator'){
-					sh ("cp ${homeDir}/convertV1beta1/result/output.xls \
-						hypercloud-multi-operator/key-mapping/hypercloud-multi-operator-crd-translation-v${version}.xls")
+			if ("${params.translateCRD}" == 'true'){
+				if (distributionType == 'only-single-operator'
+					&& fileExists("${homeDir}/convertV1beta1/result/hypercloud-single-operator-crd-translation-v${version}.xls")){
+					sh ("cp ${homeDir}/convertV1beta1/result/hypercloud-single-operator-crd-translation-v${version}.xls \
+						hypercloud-single-operator/key-mapping/")
+				} else if (distributionType == 'only-multi-operator'
+					&& fileExists("${homeDir}/convertV1beta1/result/hypercloud-multi-operator-crd-translation-v${version}.xls")){
+					sh ("cp ${homeDir}/convertV1beta1/result/hypercloud-multi-operator-crd-translation-v${version}.xls \
+						hypercloud-multi-operator/key-mapping/")
+				} else if (distributionType == 'essential'){
+					if (fileExists("${homeDir}/convertV1beta1/result/hypercloud-single-operator-crd-translation-v${version}.xls")){
+						sh ("cp ${homeDir}/convertV1beta1/result/hypercloud-single-operator-crd-translation-v${version}.xls \
+							hypercloud-single-operator/key-mapping/")
+					}
+					if (fileExists("${homeDir}/convertV1beta1/result/hypercloud-multi-operator-crd-translation-v${version}.xls")){
+						sh ("cp ${homeDir}/convertV1beta1/result/hypercloud-multi-operator-crd-translation-v${version}.xls \
+							hypercloud-multi-operator/key-mapping/")
+					}
 				} else { // integrated
-					sh "cp ${homeDir}/convert/result/output.xls translation/translation-v${version}.xls"
+					if (fileExists("${homeDir}/convert/result/hypercloud-single-operator-crd-translation-v${version}.xls")){
+						sh ("cp ${homeDir}/convert/result/hypercloud-single-operator-crd-translation-v${version}.xls \
+							hypercloud-single-operator/key-mapping/")
+					}
+					if (fileExists("${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls")){					
+						sh ("cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls \
+							hypercloud-multi-operator/key-mapping/")
+					}
+					// tfc-operator, cc-operator 추가 필요할수도 있음
 				}
 			}
-
-			// sh "sudo rm -f ${homeDir}/hypercloud-single-operator-v${version}.yaml ${homeDir}/hypercloud-multi-operator-v${version}.yaml"
-			// sh "sudo rm -f ${homeDir}/convertV1beta1/*.yaml"
-			// sh "sudo rm -f ${homeDir}/convertV1beta1/result/*"
 		}
 
 		stage('Install-hypercloud (git push)'){
@@ -744,21 +798,36 @@ void UploadCRD() {
 				sh "cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-v${version}.yaml hypercloud-multi-operator/key-mapping/"
 			}
 
-			if ("${params.translateCRD}" == 'true' && fileExists("${homeDir}/convert/result/output.xls")){
-				if (distributionType == 'only-single-operator'){
-					sh ("cp ${homeDir}/convert/result/output.xls \
-						hypercloud-single-operator/key-mapping/hypercloud-single-operator-crd-translation-v${version}.xls")
-				} else if (distributionType == 'only-multi-operator'){
-					sh ("cp ${homeDir}/convert/result/output.xls \
-						hypercloud-multi-operator/key-mapping/hypercloud-multi-operator-crd-translation-v${version}.xls")
+			if ("${params.translateCRD}" == 'true'){
+				if (distributionType == 'only-single-operator'
+					&& fileExists("${homeDir}/convert/result/hypercloud-single-operator-crd-translation-v${version}.xls")){
+					sh ("cp ${homeDir}/convert/result/hypercloud-single-operator-crd-translation-v${version}.xls \
+						hypercloud-single-operator/key-mapping/")
+				} else if (distributionType == 'only-multi-operator'
+					&& fileExists("${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls")){
+					sh ("cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls \
+						hypercloud-multi-operator/key-mapping/")
+				} else if (distributionType == 'essential'){
+					if (fileExists("${homeDir}/convert/result/hypercloud-single-operator-crd-translation-v${version}.xls")){
+						sh ("cp ${homeDir}/convert/result/hypercloud-single-operator-crd-translation-v${version}.xls \
+							hypercloud-single-operator/key-mapping/")
+					}
+					if (fileExists("${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls")){					
+						sh ("cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls \
+							hypercloud-multi-operator/key-mapping/")
+					}
 				} else { // integrated
-					sh "cp ${homeDir}/convert/result/output.xls translation/translation-v${version}.xls"
+					if (fileExists("${homeDir}/convert/result/hypercloud-single-operator-crd-translation-v${version}.xls")){
+						sh ("cp ${homeDir}/convert/result/hypercloud-single-operator-crd-translation-v${version}.xls \
+							hypercloud-single-operator/key-mapping/")
+					}
+					if (fileExists("${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls")){					
+						sh ("cp ${homeDir}/convert/result/hypercloud-multi-operator-crd-translation-v${version}.xls \
+							hypercloud-multi-operator/key-mapping/")
+					}
+					// tfc-operator, cc-operator 추가 필요할수도 있음
 				}
 			}
-
-			// sh "sudo rm -f ${homeDir}/hypercloud-single-operator-v${version}.yaml ${homeDir}/hypercloud-multi-operator-v${version}.yaml"
-			// sh "sudo rm -f ${homeDir}/convert/*.yaml"
-			// sh "sudo rm -f ${homeDir}/convert/result/*"
 		}
 
 		stage('Install-hypercloud for v1(git push)'){
