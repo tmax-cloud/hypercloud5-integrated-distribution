@@ -129,40 +129,41 @@ void SendEssentialMail() {
 		emailext (
 			 subject: "Hypercloud5-Integrated-Distribution v${version}",
 			 body:
-				"""
-				안녕하세요. ck1-3팀 이승원입니다.
-				hypercloud5(api-server, single-operator, multi-operator) 통합 배포 안내 메일입니다.
+                """
+                안녕하세요. ck1-3팀 이승원입니다.
+                hypercloud5(api-server, single-operator, multi-operator) 통합 배포 안내 메일입니다.
 
-				===
+                ===
 
-				${today}
-				통합 Install Guide : https://github.com/tmax-cloud/install-hypercloud
+                ${today}
+                통합 Install Guide : https://github.com/tmax-cloud/install-hypercloud
 
-				API-server 배포
-				* HyperCloud5 api server
-				* version: b${version}
-				* image: docker.io/tmaxcloudck/hypercloud-api-server:b${version}
-				* GitHub : https://github.com/tmax-cloud/hypercloud-api-server
-				* ChangeLog : https://github.com/tmax-cloud/hypercloud-api-server/blob/master/CHANGELOG.md
+                API-server 배포
+                * HyperCloud5 api server
+                * version: b${version}
+                * image: docker.io/tmaxcloudck/hypercloud-api-server:b${version}
+                * GitHub : https://github.com/tmax-cloud/hypercloud-api-server
+                * ChangeLog : https://github.com/tmax-cloud/hypercloud-api-server/blob/master/CHANGELOG.md
 
-				Single-operator 배포
-				* HyperCloud5 single operator
-				* version: b${version}
-				* image: docker.io/tmaxcloudck/hypercloud-single-operator:b${version}
-				* GitHub : https://github.com/tmax-cloud/hypercloud-single-operator
-				* ChangeLog : https://github.com/tmax-cloud/hypercloud-single-operator/blob/main/CHANGELOG.md
-				* CRD : https://github.com/tmax-cloud/hypercloud-single-operator/tree/main/build/manifests/v${version}
+                Single-operator 배포
+                * HyperCloud5 single operator
+                * version: b${version}
+                * image: docker.io/tmaxcloudck/hypercloud-single-operator:b${version}
+                * GitHub : https://github.com/tmax-cloud/hypercloud-single-operator
+                * ChangeLog : https://github.com/tmax-cloud/hypercloud-single-operator/blob/main/CHANGELOG.md
+                * CRD : https://github.com/tmax-cloud/hypercloud-single-operator/tree/main/build/manifests/v${version}
 
-				Multi-operator 배포
-				* HyperCloud5 multi operator
-				* version: b${version}
-				* image: docker.io/tmaxcloudck/hypercloud-multi-operator:b${version}
-				* GitHub : https://github.com/tmax-cloud/hypercloud-multi-operator
-				* ChangeLog : https://github.com/tmax-cloud/hypercloud-multi-operator/blob/master/CHANGELOG.md
-				* CRD : https://github.com/tmax-cloud/hypercloud-multi-operator/tree/master/build/manifests/v${version}
-				===
+                Multi-operator 배포
+                * HyperCloud5 multi operator
+                * version: b${version}
+                * image: docker.io/tmaxcloudck/hypercloud-multi-operator:b${version}
+                * GitHub : https://github.com/tmax-cloud/hypercloud-multi-operator
+                * ChangeLog : https://github.com/tmax-cloud/hypercloud-multi-operator/blob/master/CHANGELOG.md
+                * CRD : https://github.com/tmax-cloud/hypercloud-multi-operator/tree/master/build/manifests/v${version}
 
-				""",
+                ===
+				
+                """,
 			 to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;byongjohn_han@tmax.co.kr;",
 			 from: "seungwon_lee@tmax.co.kr"
 		)
