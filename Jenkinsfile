@@ -61,8 +61,8 @@ void SendMail(){
 		def today = dateFormat.format(date)
 
 		emailext (
-			 subject: "Hypercloud5-Integrated-Distribution v${version}",
-			 body:
+			subject: "Hypercloud5-Integrated-Distribution v${version}",
+			body:
 				"""
 				안녕하세요. ck1-2팀 이승원입니다.
 				hypercloud5 통합 정기 배포 안내 메일입니다.
@@ -113,8 +113,8 @@ void SendMail(){
 				===
 
 				""".stripIndent(),
-			 to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;byongjohn_han@tmax.co.kr;",
-			 from: "seungwon_lee@tmax.co.kr"
+			to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;byongjohn_han@tmax.co.kr;",
+			from: "seungwon_lee@tmax.co.kr"
 		)
 	}
 }
@@ -127,8 +127,8 @@ void SendEssentialMail() {
 		def today = dateFormat.format(date)
 
 		emailext (
-			 subject: "Hypercloud5-Integrated-Distribution v${version}",
-			 body:
+			subject: "Hypercloud5-Integrated-Distribution v${version}",
+			body:
 				"""
 				안녕하세요. ck1-2팀 이승원입니다.
 				hypercloud5(api-server, single-operator, multi-operator) 통합 배포 안내 메일입니다.
@@ -164,8 +164,8 @@ void SendEssentialMail() {
 				===
 
 				""".stripIndent(),
-			 to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;byongjohn_han@tmax.co.kr;",
-			 from: "seungwon_lee@tmax.co.kr"
+			to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;byongjohn_han@tmax.co.kr;",
+			from: "seungwon_lee@tmax.co.kr"
 		)
 	}
 }
