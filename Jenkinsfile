@@ -129,7 +129,7 @@ void SendEssentialMail() {
 		emailext (
 			 subject: "Hypercloud5-Integrated-Distribution v${version}",
 			 body:
-				"""
+        """
 				안녕하세요. ck1-2팀 이승원입니다.
 				hypercloud5(api-server, single-operator, multi-operator) 통합 배포 안내 메일입니다.
 
