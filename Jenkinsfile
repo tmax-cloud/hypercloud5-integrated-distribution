@@ -64,7 +64,7 @@ void SendMail(){
 			 subject: "Hypercloud5-Integrated-Distribution v${version}",
 			 body:
 				"""
-				안녕하세요. ck1-3팀 이승원입니다.
+				안녕하세요. ck1-2팀 이승원입니다.
 				hypercloud5 통합 정기 배포 안내 메일입니다.
 
 				===
@@ -112,7 +112,7 @@ void SendMail(){
 
 				===
 
-				""",
+				""".stripIndent(),
 			 to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;byongjohn_han@tmax.co.kr;",
 			 from: "seungwon_lee@tmax.co.kr"
 		)
@@ -130,7 +130,7 @@ void SendEssentialMail() {
 			 subject: "Hypercloud5-Integrated-Distribution v${version}",
 			 body:
 				"""
-				안녕하세요. ck1-3팀 이승원입니다.
+				안녕하세요. ck1-2팀 이승원입니다.
 				hypercloud5(api-server, single-operator, multi-operator) 통합 배포 안내 메일입니다.
 
 				===
@@ -160,9 +160,10 @@ void SendEssentialMail() {
 				* GitHub : https://github.com/tmax-cloud/hypercloud-multi-operator
 				* ChangeLog : https://github.com/tmax-cloud/hypercloud-multi-operator/blob/master/CHANGELOG.md
 				* CRD : https://github.com/tmax-cloud/hypercloud-multi-operator/tree/master/build/manifests/v${version}
+				
 				===
 
-				""",
+				""".stripIndent(),
 			 to: "cqa1@tmax.co.kr;ck1@tmax.co.kr;byongjohn_han@tmax.co.kr;",
 			 from: "seungwon_lee@tmax.co.kr"
 		)
