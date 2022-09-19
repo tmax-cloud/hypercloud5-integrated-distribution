@@ -272,7 +272,7 @@ void DisSingleOperator() {
 
 			sh "sed -i 's#{imageTag}#${imageTag}#' ./config/manager/kustomization.yaml"
 			sh "find ./config/crd/patches -type f -name 'cainjection*' | xargs sed -i 's#\$(CERTIFICATE_NAMESPACE)#hypercloud5-system#'"
-			sh "find ./config/crd/patches -type f -name 'cainjection*' | xargs sed -i 's#\$(CERTIFICATE_NAME)#hypercloud-multi-operator-serving-cert#'"
+			sh "find ./config/crd/patches -type f -name 'cainjection*' | xargs sed -i 's#\$(CERTIFICATE_NAME)#hypercloud-single-operator-serving-cert#'"
 		}
 
 		stage('Single-operator (kustomize crd v1beta1)') {
