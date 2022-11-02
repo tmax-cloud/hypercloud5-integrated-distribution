@@ -525,8 +525,8 @@ void DisTFCOperator() {
 	def scriptHome = "${buildDir}/scripts"
 	def version = "${params.majorVersion}.${params.minorVersion}.${params.tinyVersion}.${params.hotfixVersion}"
 	def imageTag = "b${version}"
-	def userName = "gyeongyeol-choi"
-	def userEmail = "gyeongyeol_choi@tmax.co.kr"
+	def userName = "sjoh0704"
+	def userEmail = "seungju_oh@tmax.co.kr"
 
 
 	dir(buildDir){
