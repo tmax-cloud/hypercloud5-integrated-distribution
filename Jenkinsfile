@@ -556,8 +556,9 @@ void DisTFCOperator() {
 			sh "sed -i 's#{imageTag}#${imageTag}#' ./config/manager/kustomization.yaml"
 			sh "sudo kubectl kustomize ./config/default/ > bin/tfc-operator-v${version}.yaml"
 			sh "sudo kubectl kustomize ./config/crd/ > bin/crd-v${version}.yaml"
+			sh "sed -i 's/$(CERTIFICATE_NAMESPACE)/tfapplyclaim/g' bin/crd-v${version}.yaml"
+			sh "sed -i 's/$(CERTIFICATE_NAME)/tfc-operator-serving-cert/g' bin/crd-v${version}.yaml"
 			sh "sudo tar -zvcf bin/tfc-operator-manifests-v${version}.tar.gz bin/tfc-operator-v${version}.yaml bin/crd-v${version}.yaml"
-
 			sh "sudo mkdir -p build/manifests/v${version}"
 			sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
 		}
