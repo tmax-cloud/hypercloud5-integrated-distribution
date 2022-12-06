@@ -40,6 +40,8 @@ node {
 			break
 		case 'only-tfc-operator':
 			DisTFCOperator()
+			MakeKeyMappingFile()
+			UploadCRDToInstallTFC()
 			break
 		case 'only-cloud-credential-operator':
 			DisCCOperator()
@@ -525,9 +527,8 @@ void DisTFCOperator() {
 	def scriptHome = "${buildDir}/scripts"
 	def version = "${params.majorVersion}.${params.minorVersion}.${params.tinyVersion}.${params.hotfixVersion}"
 	def imageTag = "b${version}"
-	def userName = "sjoh0704"
+	def userName = "SeungJuOh"
 	def userEmail = "seungju_oh@tmax.co.kr"
-
 
 	dir(buildDir){
 		stage('tfc-operator (git pull)') {
@@ -535,7 +536,6 @@ void DisTFCOperator() {
 			credentialsId: '${userName}',
 			url: "http://${gitAddress}"
 
-			// git pull
 			sh "git checkout ${params.tfcOperatorBranch}"
 			sh "git config --global user.name ${userName}"
 			sh "git config --global user.email ${userEmail}"
@@ -552,15 +552,49 @@ void DisTFCOperator() {
 				'''
 		}
 
-		stage('tfc-operator (make manifests)') {
+		stage('tfc-operator (pre-stage for make manifests)') {
+			sh "mkdir -p bin"
+			sh "mkdir -p build/manifests/v${version}"
+			sh "mkdir -p ${homeDir}/convert/result"
+			sh "mkdir -p ${homeDir}/convertV1beta1/result"
+
 			sh "sed -i 's#{imageTag}#${imageTag}#' ./config/manager/kustomization.yaml"
-			sh "sudo kubectl kustomize ./config/default/ > bin/tfc-operator-v${version}.yaml"
 			sh "find ./config/crd/patches -type f -name 'cainjection*' | xargs sed -i 's#\$(CERTIFICATE_NAMESPACE)#tfapplyclaim#'"
 			sh "find ./config/crd/patches -type f -name 'cainjection*' | xargs sed -i 's#\$(CERTIFICATE_NAME)#tfc-operator-serving-cert#'"
-			sh "sudo kubectl kustomize ./config/crd/ > bin/crd-v${version}.yaml"
-			sh "sudo tar -zvcf bin/tfc-operator-manifests-v${version}.tar.gz bin/tfc-operator-v${version}.yaml bin/crd-v${version}.yaml"
-			sh "sudo mkdir -p build/manifests/v${version}"
-			sh "sudo cp bin/*v${version}.yaml build/manifests/v${version}/"
+		}
+
+		stage('tfc-operator (kustomize crd v1beta1)') {
+			// make generate manifests for v1beta1(setup base file to v1beta1)
+			// create crd yaml
+			sh "make generate manifests_v1beta1"
+			sh "find ./config/crd/patches -type f -name 'cainjection*' | xargs sed -i 's#apiextensions.k8s.io/v1#apiextensions.k8s.io/v1beta1#'"
+			sh "kubectl kustomize ./config/crd/ > bin/tfc-operator-crd-v${version}-v1beta1.yaml"
+
+			// copy v1beta1 crd files to build dir and translation dir
+			sh "cp bin/tfc-operator-crd-v${version}-v1beta1.yaml build/manifests/v${version}/"
+			sh "cp bin/tfc-operator-crd-v${version}-v1beta1.yaml ${homeDir}/convertV1beta1/tfc-operator-crd-v${version}.yaml"
+		}
+
+		stage('tfc-operator (kustomize crd v1)') {
+			// make generate manifests for v1(setup base file to v1)
+			// create crd yaml
+			sh "make generate manifests_v1"
+			sh "find ./config/crd/patches -type f -name 'cainjection*' | xargs sed -i 's#apiextensions.k8s.io/v1beta1#apiextensions.k8s.io/v1#'"
+			sh "kubectl kustomize ./config/crd/ > bin/tfc-operator-crd-v${version}.yaml"
+
+			// copy v1 crd files to build dir and translation dir
+			sh "cp bin/tfc-operator-crd-v${version}.yaml build/manifests/v${version}/"
+			sh "cp bin/tfc-operator-crd-v${version}.yaml ${homeDir}/convert/"
+		}
+
+		stage('tfc-operator (make manifests)') {
+			// create full yaml of multi-operator
+			// based on v1
+			sh "kubectl kustomize ./config/default/ > bin/tfc-operator-v${version}.yaml"
+
+			// copy files
+			sh "cp bin/*v${version}.yaml build/manifests/v${version}/"
+			sh "cp bin/tfc-operator-v${version}.yaml ${homeDir}/"
 		}
 
 		stage('tfc-operator (image build & push)'){
@@ -887,5 +921,68 @@ void MakeKeyMappingFile() {
 				sh "./gradlew run --args=\"root ${homeDir}/convertV1beta1 output result translate ${params.translateCRD}\""
 			}
 		}
+	}
+}
+
+
+void UploadCRDToInstallTFC() {
+	def gitHubBaseAddress = "github.com"
+	def gitAddress = "${gitHubBaseAddress}/tmax-cloud/install-tfc-operator.git"
+	def homeDir = "/var/lib/jenkins/workspace/hypercloud5-integrated"
+	def buildDir = "${homeDir}/install-tfc-operator"
+	def version = "${params.majorVersion}.${params.minorVersion}.${params.tinyVersion}.${params.hotfixVersion}"
+	def userName = "SeungJuOh"
+	def userEmail = "seungju_oh@tmax.co.kr"
+	def branch = "5.0"
+
+	dir(buildDir){
+		stage('Install-tfc-operator (git pull)') {
+			git branch: "${branch}",
+			credentialsId: '${userName}',
+			url: "http://${gitAddress}"
+
+			sh "git checkout ${branch}"
+			sh "git config --global user.name ${userName}"
+			sh "git config --global user.email ${userEmail}"
+			sh "git config --global credential.helper store"
+
+			sh "git fetch --all"
+			sh "git reset --hard origin/${branch}"
+			sh "git pull origin ${branch}"
+		}
+
+		stage('Install-tfc-operator (upload CRD yaml)'){
+			sh "mkdir -p build/v${version}"
+			sh "mkdir -p build/v${version}/v1"
+			sh "mkdir -p build/v${version}/v1beta1"
+			sh "cp ${homeDir}/tfc-operator-v${version}.yaml build/v${version}/"
+			sh "cp ${homeDir}/convertV1beta1/result/tfc-operator-crd-v${version}.yaml build/v${version}/v1beta1/"
+			sh "cp ${homeDir}/convert/result/tfc-operator-crd-v${version}.yaml build/v${version}/v1/"
+
+			if ("${params.translateCRD}" == 'true'){
+				sh "cp ${homeDir}/convertV1beta1/result/tfc-operator-crd-translation-v${version}.xls build/v${version}/v1beta1/"
+				sh "cp ${homeDir}/convert/result/tfc-operator-crd-translation-v${version}.xls build/v${version}/v1/"
+			}
+		}
+
+		stage('Install-tfc-operator (git push)'){
+			sh "git checkout ${branch}"
+
+			sh "git config --global user.name ${userName}"
+			sh "git config --global user.email ${userEmail}"
+			sh "git config --global credential.helper store"
+			sh "git add -A"
+
+			def commitMsg = "[Distribution] Upload Operator CRD yaml - v${version}"
+			sh (script: "git commit -m \"${commitMsg}\" || true")
+
+			sh "git remote set-url origin https://${githubUserToken}@github.com/tmax-cloud/install-tfc-operator.git"
+			sh "sudo git push -u origin +${branch}"
+
+			sh "git fetch --all"
+			sh "git reset --hard origin/${branch}"
+			sh "git pull origin ${branch}"
+		}
+
 	}
 }
